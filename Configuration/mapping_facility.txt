@@ -1,0 +1,15 @@
+premiumClass:F4
+secondClass:F5
+singleSleeper:F11
+doubleSleeper:F13
+babyCompartment:F24
+cyclesAllowedInVan:F26
+suitableForWheelchairs:F28
+suitableForPushchairs:F28
+bistro:F47
+familyCarriage:F48
+trolley:S25
+publicWifi:S46
+freeWifi:S46
+reservationsPossible:R11
+#reservationsCompulsory:R13

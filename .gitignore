@@ -1,0 +1,18 @@
+# Environment / secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Archives
+*.zip
+
+# Downloaded/generated data files
+DOWNLOAD/
+NETEX/
+
+# Generated zip outputs
+NEW_SKDUPD/*.zip
+NEW_SKDUPD/temp.r
