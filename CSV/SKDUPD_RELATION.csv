@@ -1,1 +1,1 @@
-ID;Stop_number;Service;Relation;Transfer_time;Certainty
+relation_id;por_id;train_id;service;relation;transfer_time;certainty
