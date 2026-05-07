@@ -25,6 +25,11 @@ _ROOT = _HERE.parent                             # NeTEx2EDIFACT/
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
+# Skip the entire module if the merits package is not installed.
+# merits is installed from github.com/UnionInternationalCheminsdeFer/MERITS-open-source-tools
+# and is not available on PyPI.
+pytest.importorskip("merits", reason="merits package not installed — skipping smoke tests")
+
 from Converter.TSDUPD.netex2tsdupd import convert  # noqa: E402
 
 
