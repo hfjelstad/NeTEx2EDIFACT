@@ -21,11 +21,6 @@ Usage:
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-# Ensure the project root is on sys.path when this script is run directly
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-
 import argparse
 import zipfile
 import xml.etree.ElementTree as ET
@@ -37,7 +32,7 @@ from merits.skdupd.csv_model import Meta, Odi, Por, Relation, Train
 from merits.skdupd.csvs_to_edifact import CsvsToEdifact
 from merits.skdupd import definition
 
-from Converter.Shared.netex_helpers import (
+from netex_helpers import (
     NS,
     private_code,
     ref as netex_ref,
@@ -45,7 +40,6 @@ from Converter.Shared.netex_helpers import (
     text as netex_text,
     uic_code,
 )
-from Converter.Shared.edifact_mappings import PARTICIPANT_TO_RICS, resolve_originator
 
 
 # ---------------------------------------------------------------------------
@@ -70,9 +64,7 @@ def load_mapping(path: Path) -> Dict[str, str]:
     return mapping
 
 
-# Configuration/ lives at the project root (NeTEx2EDIFACT/), not next to this
-# module. Resolve it relative to this file's grand-grand-parent.
-DEFAULT_CONFIG_DIR = Path(__file__).resolve().parents[2] / "Configuration"
+DEFAULT_CONFIG_DIR = Path(__file__).parent / "Configuration"
 
 
 # ---------------------------------------------------------------------------
@@ -100,27 +92,10 @@ def _rows(instances, cls):
 
 
 def _parse_time(t: str) -> Optional[str]:
-    """Return HHMM (4-digit numeric) or None. Strips seconds and colon.
-
-    MERITS POR/E362 expects time as a 4-digit numeric value (data element 2002),
-    not the ISO HH:MM form.  '09:30:00' -> '0930'.
-    """
+    """Return HH:MM or None. Strips seconds."""
     if not t:
         return None
-    s = t[:5]  # HH:MM
-    if len(s) == 5 and s[2] == ":":
-        return s[:2] + s[3:]
-    return s.replace(":", "")
-
-
-def _apply_day_offset(hhmm: Optional[str], offset: Optional[str]) -> Optional[str]:
-    """Deprecated: kept for import-compatibility.
-
-    Day-offset handling now lives inline in build_trains_and_pors and emits
-    the ":::N" marker on the FIRST cross-midnight arrival only (matching
-    validated reference output produced by the MERITS reference pipeline).
-    """
-    return hhmm
+    return t[:5]  # HH:MM
 
 
 def _operation_days_bitmask(dates: List[date], first: date, last: date) -> str:
@@ -151,6 +126,80 @@ def _traffic_restriction_code(for_boarding: bool, for_alighting: bool) -> Option
 
 
 # ---------------------------------------------------------------------------
+# Facility code resolution
+# ---------------------------------------------------------------------------
+
+_FACILITY_LIST_TAGS: Tuple[str, ...] = (
+    "CateringFacilityList",
+    "FareClasses",
+    "MobilityFacilityList",
+    "AccommodationFacilityList",
+    "LuggageCarriageFacilityList",
+    "PassengerCommsFacilityList",
+    "ServiceReservationFacilityList",
+)
+
+
+def _get_fac_set_refs(element: ET.Element) -> List[str]:
+    """Return ServiceFacilitySetRef/@ref values from ./facilities/ container or as direct children."""
+    refs: List[str] = []
+    fac_container = element.find(f"{{{NS}}}facilities")
+    if fac_container is not None:
+        for r in fac_container.findall(f"{{{NS}}}ServiceFacilitySetRef"):
+            ref = r.get("ref", "")
+            if ref:
+                refs.append(ref)
+    for r in element.findall(f"{{{NS}}}ServiceFacilitySetRef"):
+        ref = r.get("ref", "")
+        if ref:
+            refs.append(ref)
+    return refs
+
+
+def _resolve_facility_codes(
+    fac_set: ET.Element, facility_map: Dict[str, str]
+) -> Tuple[List[str], Optional[str]]:
+    """
+    Read all facility list tokens from a ServiceFacilitySet element and map them.
+
+    Returns:
+      (odi_codes, reservation)
+
+      odi_codes    — deduplicated list of "S{n}" or "F{n}" strings:
+                       S{n}  → Odi.tff_or_asd_or_ser  → ASD+{n}  (code list 7161)
+                       F{n}  → Odi.tff_or_asd_or_ser  → SER+{n}  (code list 9039)
+      reservation  — numeric string from the first R-code found, or None.
+                     Goes into Odi.reservation → ASD/SER reservation subfield
+                     (code list 7037).  NOT emitted as a standalone segment.
+    """
+    odi_codes: List[str] = []
+    reservation: Optional[str] = None
+    seen: set = set()
+    for tag in _FACILITY_LIST_TAGS:
+        el = fac_set.find(f"{{{NS}}}{tag}")
+        if el is None or not el.text:
+            continue
+        for token in el.text.split():
+            raw = facility_map.get(token, "")
+            if not raw or len(raw) < 2:
+                continue
+            prefix, num = raw[0], raw[1:]
+            if prefix == "S":
+                odi_code = f"S{num}"
+                if odi_code not in seen:
+                    odi_codes.append(odi_code)
+                    seen.add(odi_code)
+            elif prefix == "F":
+                odi_code = f"F{num}"
+                if odi_code not in seen:
+                    odi_codes.append(odi_code)
+                    seen.add(odi_code)
+            elif prefix == "R" and reservation is None:
+                reservation = num  # first R-code wins; attached as qualifier
+    return odi_codes, reservation
+
+
+# ---------------------------------------------------------------------------
 # Station file index
 # ---------------------------------------------------------------------------
 
@@ -159,71 +208,26 @@ def _uic_from_stop_place(sp) -> str:
     return uic_code(sp, accept_legacy=False)
 
 
-def _build_station_index(station_path: Path) -> Dict[str, Tuple[str, str]]:
+def _build_station_index(station_zip: Path) -> Dict[str, Tuple[str, str]]:
     """
     Returns quay_id → (uic_code, platform_public_code)
-    by reading StopPlace UIC and nested Quay/PublicCode from a station NeTEx
-    source.  Accepts either a ZIP archive of XML files (e.g. NSR
-    RailStations_latest.zip) or a single .xml document
-    (e.g. nsr_railstations_with_mct.xml that includes Nordic neighbour
-    stations such as Göteborg, Helsingborg).
-
-    Child StopPlaces (those with a ParentSiteRef) inherit the parent's UIC
-    code when their own privateCodes/uicCode is empty.  This pattern is
-    used in the cross-border Tiamat export for Swedish/Danish stations.
+    by reading StopPlace UIC and nested Quay/PublicCode from station zip.
     """
     index: Dict[str, Tuple[str, str]] = {}
-
-    def _index_root(root: ET.Element) -> None:
-        # First pass: build {stop_place_id: uic} and {stop_place_id: parent_id}
-        own_uic: Dict[str, str] = {}
-        parent_of: Dict[str, str] = {}
-        stop_places = root.findall(f".//{{{NS}}}StopPlace")
-        for sp in stop_places:
-            sp_id = sp.get("id", "")
-            if not sp_id:
-                continue
-            u = _uic_from_stop_place(sp)
-            if u:
-                own_uic[sp_id] = u
-            parent_el = sp.find(f"{{{NS}}}ParentSiteRef")
-            if parent_el is not None:
-                pref = parent_el.get("ref", "")
-                if pref:
-                    parent_of[sp_id] = pref
-
-        def _resolve_uic(sp_id: str) -> str:
-            seen: set = set()
-            cur = sp_id
-            while cur and cur not in seen:
-                seen.add(cur)
-                if cur in own_uic:
-                    return own_uic[cur]
-                cur = parent_of.get(cur, "")
-            return ""
-
-        # Second pass: index quays using inherited UIC where needed.
-        for sp in stop_places:
-            sp_id = sp.get("id", "")
-            uic = _resolve_uic(sp_id)
-            if not uic:
-                continue
-            for quay in sp.findall(f".//{{{NS}}}Quay"):
-                q_id = quay.get("id", "")
-                pub = quay.find(f"{{{NS}}}PublicCode")
-                platform = pub.text.strip() if pub is not None and pub.text else ""
-                if q_id:
-                    index[q_id] = (uic, platform)
-
-    suffix = station_path.suffix.lower()
-    if suffix == ".zip":
-        with zipfile.ZipFile(station_path) as z:
-            for xml_name in (n for n in z.namelist() if n.endswith(".xml")):
-                _index_root(ET.fromstring(z.read(xml_name)))
-    elif suffix == ".xml":
-        _index_root(ET.parse(str(station_path)).getroot())
-    else:
-        raise SystemExit(f"Unsupported station file extension: {station_path.suffix} ({station_path})")
+    with zipfile.ZipFile(station_zip) as z:
+        xml_names = [n for n in z.namelist() if n.endswith(".xml")]
+        for xml_name in xml_names:
+            root = ET.fromstring(z.read(xml_name))
+            for sp in root.findall(f".//{{{NS}}}StopPlace"):
+                uic = _uic_from_stop_place(sp)
+                if not uic:
+                    continue
+                for quay in sp.findall(f".//{{{NS}}}Quay"):
+                    q_id = quay.get("id", "")
+                    pub = quay.find(f"{{{NS}}}PublicCode")
+                    platform = pub.text.strip() if pub is not None and pub.text else ""
+                    if q_id:
+                        index[q_id] = (uic, platform)
     return index
 
 
@@ -249,6 +253,10 @@ class TimetableData:
         self.spijp_order: Dict[str, int] = {}            # SPiJP id → stop_number
         self.spijp_restrictions: Dict[str, Tuple[bool, bool]] = {}  # SPiJP id → (ForBoarding, ForAlighting)
         self._build_journey_lookups()
+
+        # Facility sets (indexed from all loaded files)
+        self.facility_sets: Dict[str, ET.Element] = {}
+        self._build_facility_index()
 
     def _load(self, timetable_zip: Path) -> None:
         with zipfile.ZipFile(timetable_zip) as z:
@@ -304,6 +312,15 @@ class TimetableData:
                         self.spijp_order[spijp_id] = order
                         self.spijp_restrictions[spijp_id] = (for_boarding, for_alighting)
 
+    def _build_facility_index(self) -> None:
+        """Index all ServiceFacilitySet elements by id across shared and journey files."""
+        all_roots = ([self.shared_root] if self.shared_root is not None else []) + self.journey_roots
+        for root in all_roots:
+            for fac in root.findall(f".//{{{NS}}}ServiceFacilitySet"):
+                fac_id = fac.get("id", "")
+                if fac_id:
+                    self.facility_sets[fac_id] = fac
+
     def service_journeys(self):
         """Yield all ServiceJourney elements from journey files."""
         for root in self.journey_roots:
@@ -338,12 +355,10 @@ def build_trains_and_pors(
     quay_index: Dict[str, Tuple[str, str]],
     originator: str,
     brand_map: Optional[Dict[str, str]] = None,
+    facility_map: Optional[Dict[str, str]] = None,
     train_id_offset: int = 0,
     por_id_offset: int = 0,
-    service_mode_map: Optional[Dict[str, str]] = None,
-    spijp_remap_out: Optional[Dict[int, Dict[str, int]]] = None,
-    train_sjs_out: Optional[List[ET.Element]] = None,
-) -> Tuple[List[Meta], List[Train], List[Por]]:
+) -> Tuple[List[Meta], List[Train], List[Por], List[Odi]]:
     """
     Convert parsed timetable + quay index into MERITS dataclass instances.
     Shared between the direct (netex2skdupd) and CSV-intermediate (netex2skdupd_csv) paths.
@@ -351,40 +366,23 @@ def build_trains_and_pors(
     train_id_offset / por_id_offset allow merging multiple operator files into
     one delivery with globally unique IDs.
     brand_map maps TransportSubmode value → MERITS service_mode code.
-
-    spijp_remap_out, when provided, is populated with one entry per emitted
-    train: ``{train_id: {spijp_ref: new_stop_number, ...}, ...}`` so callers
-    (such as ODI builders) can translate SPiJP refs into the renumbered POR
-    sequence after stops without UIC have been dropped.
-
-    train_sjs_out, when provided, is appended with the source ServiceJourney
-    element for every emitted Train (parallel to the returned trains list),
-    since journeys with fewer than two UIC-resolvable stops are skipped.
     """
     today = date.today().isoformat()
-    # MERITS expects `reference` to be a 15-char timestamp 'YYYY-MM-DDTHHMMSS'.
-    # The HDR collector takes reference[:-2] for date_1 (qualifier 45).
-    reference = datetime.now().strftime("%Y-%m-%dT%H%M%S")
     meta_list = [Meta(
-        reference=reference,
+        reference=f"SKDUPD_{today}",
         validity_first_date=today,
-        validity_last_date=today,
+        validity_last_date=None,
         originator=originator,
     )]
 
     trains: List[Train] = []
     pors: List[Por] = []
+    odis: List[Odi] = []
     train_id = train_id_offset
     por_id = por_id_offset
+    odi_id = 0
     skipped_stops = 0
-    skipped_trains = 0
     restricted_stops = 0  # Count stops with boarding/alighting restrictions
-
-    # Per-TransportMode breakdown so dropped rail journeys (which usually
-    # indicate genuine data problems) can be distinguished from skipped
-    # buses or coaches (which are expected for SKDUPD).
-    skipped_by_mode: Dict[str, int] = {}
-    skipped_rail_details: List[Tuple[str, str, int, int]] = []  # (sj_id, train_number, total_pt, valid_stops)
 
     sj_dates = tt.dated_journeys_by_sj()
 
@@ -400,19 +398,17 @@ def build_trains_and_pors(
 
         # Operator code from OperatorRef (e.g. 'NSB:Operator:NSB' → 'NSB')
         op_ref_el = sj.find(f"{{{NS}}}OperatorRef")
-        operator_alpha = op_ref_el.get("ref", "").split(":")[-1] if op_ref_el is not None else originator
-        # PRD/3036(1) requires a RICS code, not an alpha code.
-        operator = PARTICIPANT_TO_RICS.get(operator_alpha.upper(), originator)
+        operator = op_ref_el.get("ref", "").split(":")[-1] if op_ref_el is not None else originator
 
-        # PRD/E989(1)/7009 service_mode = transport mode code (e.g. rail → 37)
-        tm_el = sj.find(f"{{{NS}}}TransportMode")
-        tm_value = (tm_el.text or "").strip() if tm_el is not None else ""
+        # Service mode from TransportSubmode via brand_map
+        submode_el = sj.find(f".//{{{NS}}}TransportSubmode")
         service_mode: Optional[str] = None
-        if service_mode_map and tm_value in service_mode_map:
-            service_mode = service_mode_map[tm_value]
-        # brand_map currently unused for Train.service_mode (would feed PDT/service_brand,
-        # which is not modelled in the MERITS Train CSV). Kept in signature for callers.
-        _ = brand_map
+        if submode_el is not None:
+            for child in submode_el:
+                submode_value = child.text or ""
+                if brand_map and submode_value in brand_map:
+                    service_mode = brand_map[submode_value]
+                    break
 
         # Operating dates — from DatedServiceJourney (required)
         dates = sj_dates.get(sj_id, [])
@@ -420,46 +416,6 @@ def build_trains_and_pors(
         first_day = dates[0].isoformat() if dates else None
         last_day = dates[-1].isoformat() if dates else None
         op_days = _operation_days_bitmask(dates, dates[0], dates[-1]) if dates else None
-
-        passing_times = sj.findall(f".//{{{NS}}}TimetabledPassingTime")
-
-        def stop_order(tp):
-            spijp_ref = tp.find(f"{{{NS}}}StopPointInJourneyPatternRef")
-            ref = spijp_ref.get("ref", "") if spijp_ref is not None else ""
-            return tt.spijp_order.get(ref, 999)
-
-        passing_times_sorted = sorted(passing_times, key=stop_order)
-
-        # Pre-filter: drop passing times whose stop has no UIC code, since
-        # MERITS POR/E517(1)/3225 requires uic and ODI/1050 references depend
-        # on the (re-)numbered stop sequence.  Stops without UIC typically
-        # belong to non-rail journey segments and cannot be represented in
-        # SKDUPD anyway.
-        emitted: List[Tuple[str, ET.Element, str, str]] = []
-        for tp in passing_times_sorted:
-            spijp_ref_el = tp.find(f"{{{NS}}}StopPointInJourneyPatternRef")
-            spijp_ref = spijp_ref_el.get("ref", "") if spijp_ref_el is not None else ""
-            ssp_id = tt.spijp_to_ssp.get(spijp_ref, "")
-            quay_id = tt.ssp_to_quay.get(ssp_id, "")
-            uic, platform = quay_index.get(quay_id, ("", ""))
-            if not uic:
-                skipped_stops += 1
-                continue
-            emitted.append((spijp_ref, tp, uic, platform))
-
-        total_stops = len(emitted)
-        # MERITS requires a minimum of two stops per train (PRD/4_POP/POR).
-        # Skip journeys that collapse to <2 UIC-resolvable stops; the
-        # accompanying ODIs are also suppressed because no Train is emitted.
-        if total_stops < 2:
-            skipped_trains += 1
-            mode_key = tm_value or "(none)"
-            skipped_by_mode[mode_key] = skipped_by_mode.get(mode_key, 0) + 1
-            if tm_value == "rail":
-                skipped_rail_details.append(
-                    (sj_id, train_number, len(passing_times_sorted), total_stops)
-                )
-            continue
 
         train_id += 1
         trains.append(Train(
@@ -477,51 +433,37 @@ def build_trains_and_pors(
             operation_days=op_days,
             second_service_number=None,
         ))
-        if train_sjs_out is not None:
-            train_sjs_out.append(sj)
 
-        if spijp_remap_out is not None:
-            spijp_remap_out[train_id] = {
-                ref: i for i, (ref, _, _, _) in enumerate(emitted, start=1)
-            }
-        # Day-offset emission strategy (matches validated reference output):
-        # MERITS expects POR/E362 day-offset (sub-element 4, e.g. ":::1") to be
-        # populated ONLY on the first arrival composite that crosses midnight,
-        # not on every subsequent post-midnight stop.  Subsequent stops carry
-        # plain HHMM and the validator infers day rollover from the marker.
-        prev_offset = "0"
-        first_marker_emitted = False
-        for stop_num, (spijp_ref, tp, uic, platform) in enumerate(emitted, start=1):
+        passing_times = sj.findall(f".//{{{NS}}}TimetabledPassingTime")
+
+        def stop_order(tp):
+            spijp_ref = tp.find(f"{{{NS}}}StopPointInJourneyPatternRef")
+            ref = spijp_ref.get("ref", "") if spijp_ref is not None else ""
+            return tt.spijp_order.get(ref, 999)
+
+        passing_times_sorted = sorted(passing_times, key=stop_order)
+
+        ssp_to_stop_num: Dict[str, int] = {}  # SSP id → 1-based stop position (for JourneyPart range resolution)
+
+        for stop_num, tp in enumerate(passing_times_sorted, start=1):
+            spijp_ref_el = tp.find(f"{{{NS}}}StopPointInJourneyPatternRef")
+            spijp_ref = spijp_ref_el.get("ref", "") if spijp_ref_el is not None else ""
+            ssp_id = tt.spijp_to_ssp.get(spijp_ref, "")
+            if ssp_id:
+                ssp_to_stop_num[ssp_id] = stop_num
+            quay_id = tt.ssp_to_quay.get(ssp_id, "")
+            uic, platform = quay_index.get(quay_id, ("", ""))
+
+            if not uic:
+                skipped_stops += 1
+
             arr = _parse_time(_text(tp, "ArrivalTime"))
             dep = _parse_time(_text(tp, "DepartureTime"))
-            arr_off_raw = (_text(tp, "ArrivalDayOffset") or "0").strip() or "0"
-            dep_off_raw = (_text(tp, "DepartureDayOffset") or "0").strip() or "0"
-
-            # Mark only the first arrival/departure that increases the
-            # cumulative day-offset relative to the previous emitted offset.
-            arr_off: Optional[str] = None
-            dep_off: Optional[str] = None
-            if not first_marker_emitted and arr is not None and arr_off_raw != prev_offset:
-                arr_off = arr_off_raw
-                first_marker_emitted = True
-                prev_offset = arr_off_raw
-            elif not first_marker_emitted and dep is not None and dep_off_raw != prev_offset:
-                dep_off = dep_off_raw
-                first_marker_emitted = True
-                prev_offset = dep_off_raw
-            else:
-                # Track running offset so a later (e.g. day+2) marker triggers.
-                if dep_off_raw != prev_offset and first_marker_emitted:
-                    # Multi-day journeys (rare): emit subsequent rollover too.
-                    dep_off = dep_off_raw
-                    prev_offset = dep_off_raw
 
             if stop_num == 1:
                 arr = None
-                arr_off = None
-            if stop_num == total_stops:
+            if stop_num == len(passing_times_sorted):
                 dep = None
-                dep_off = None
 
             # Resolve boarding/alighting restrictions
             for_boarding, for_alighting = tt.spijp_restrictions.get(spijp_ref, (True, True))
@@ -534,11 +476,11 @@ def build_trains_and_pors(
                 por_id=por_id,
                 train_id=train_id,
                 stop_number=stop_num,
-                uic=uic,
+                uic=uic or None,
                 arrival_time=arr,
-                arrival_time_offset=arr_off,
+                arrival_time_offset=None,
                 departure_time=dep,
-                departure_time_offset=dep_off,
+                departure_time_offset=None,
                 arrival_platform=platform or None,
                 departure_platform=platform or None,
                 property=None,
@@ -550,21 +492,55 @@ def build_trains_and_pors(
                 check_in=None,
             ))
 
+        # --- Facility sets → ODI rows ---
+        total_stops = len(passing_times_sorted)
+        if facility_map and total_stops > 0:
+            # JourneyPart-level facility sets (per-segment stop range)
+            for jp in sj.findall(f".//{{{NS}}}JourneyPart"):
+                jp_fac_ids = _get_fac_set_refs(jp)
+                if not jp_fac_ids:
+                    continue
+                from_ssp_el = jp.find(f"{{{NS}}}FromStopPointRef")
+                to_ssp_el = jp.find(f"{{{NS}}}ToStopPointRef")
+                from_ssp = from_ssp_el.get("ref", "") if from_ssp_el is not None else ""
+                to_ssp = to_ssp_el.get("ref", "") if to_ssp_el is not None else ""
+                from_num = ssp_to_stop_num.get(from_ssp, 1)
+                to_num = ssp_to_stop_num.get(to_ssp, total_stops)
+                for fac_id in jp_fac_ids:
+                    fac_el = tt.facility_sets.get(fac_id)
+                    if fac_el is None:
+                        continue
+                    odi_codes, reservation = _resolve_facility_codes(fac_el, facility_map)
+                    for edi_code in odi_codes:
+                        odi_id += 1
+                        odis.append(Odi(
+                            odi_id=odi_id,
+                            train_id=train_id,
+                            from_stop_number=str(from_num),
+                            to_stop_number=str(to_num),
+                            tff_or_asd_or_ser=edi_code,
+                        ))
+            # SJ-level facility set (whole train)
+            for fac_id in _get_fac_set_refs(sj):
+                fac_el = tt.facility_sets.get(fac_id)
+                if fac_el is None:
+                    continue
+                odi_codes, reservation = _resolve_facility_codes(fac_el, facility_map)
+                for edi_code in odi_codes:
+                    odi_id += 1
+                    odis.append(Odi(
+                        odi_id=odi_id,
+                        train_id=train_id,
+                        from_stop_number="1",
+                        to_stop_number=str(total_stops),
+                        tff_or_asd_or_ser=edi_code,
+
+                    ))
+
     print(f"Converted {len(trains)} trains, {len(pors)} stop-times "
-          f"({skipped_stops} stops without UIC, {restricted_stops} with restrictions"
-          + (f", {skipped_trains} trains skipped (<2 valid stops)" if skipped_trains else "")
-          + ")")
-    if skipped_by_mode:
-        breakdown = ", ".join(f"{m}={n}" for m, n in sorted(skipped_by_mode.items(), key=lambda kv: -kv[1]))
-        print(f"  Skipped by TransportMode: {breakdown}")
-    if skipped_rail_details:
-        rail_n = len(skipped_rail_details)
-        print(f"  WARNING: {rail_n} rail journey(s) skipped due to <2 UIC-resolvable stops:")
-        for sj_id, train_number, total_pt, valid in skipped_rail_details[:20]:
-            print(f"    train#{train_number:>8s}  {valid}/{total_pt} stops with UIC  ({sj_id})")
-        if rail_n > 20:
-            print(f"    ... and {rail_n - 20} more (showing first 20)")
-    return meta_list, trains, pors
+          f"({skipped_stops} stops without UIC, {restricted_stops} with restrictions), "
+          f"{len(odis)} ODI facility entries")
+    return meta_list, trains, pors, odis
 
 
 # ---------------------------------------------------------------------------
@@ -580,14 +556,11 @@ def convert(
 ) -> None:
     cfg_dir = config_dir or DEFAULT_CONFIG_DIR
     brand_map = load_mapping(cfg_dir / "mapping_brand.txt")
-    service_mode_map = load_mapping(cfg_dir / "mapping_service_mode.txt")
     if brand_map:
         print(f"  Loaded brand map: {len(brand_map)} entries")
-    if service_mode_map:
-        print(f"  Loaded service-mode map: {len(service_mode_map)} entries")
-
-    resolved_originator = resolve_originator(originator, None)
-    print(f"Originator {originator!r} -> RICS {resolved_originator!r}")
+    facility_map = load_mapping(cfg_dir / "mapping_facility.txt")
+    if facility_map:
+        print(f"  Loaded facility map: {len(facility_map)} entries")
 
     print(f"Loading station index from {station_zip.name} ...")
     quay_index = _build_station_index(station_zip)
@@ -599,11 +572,7 @@ def convert(
     print(f"  {len(tt.spijp_to_ssp)} StopPointInJourneyPattern entries")
     print(f"  {sum(len(v) for v in tt.dated_journeys_by_sj().values())} DatedServiceJourney entries")
 
-    meta_list, trains, pors = build_trains_and_pors(
-        tt, quay_index, resolved_originator,
-        brand_map=brand_map,
-        service_mode_map=service_mode_map,
-    )
+    meta_list, trains, pors, odis = build_trains_and_pors(tt, quay_index, originator, brand_map=brand_map, facility_map=facility_map)
 
     converter = CsvsToEdifact()
     converter.load({
@@ -611,21 +580,13 @@ def convert(
         definition.TRAIN_FILE_NAME:    _rows(trains, Train),
         definition.POR_FILE_NAME:      _rows(pors, Por),
         definition.RELATION_FILE_NAME: _rows([], Relation),
-        definition.ODI_FILE_NAME:      _rows([], Odi),
+        definition.ODI_FILE_NAME:      _rows(odis, Odi),
     })
     edifact_text = converter.get()
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
     output_file.write_text(edifact_text, encoding="utf-8")
     print(f"Written SKDUPD EDIFACT to {output_file}")
-
-    # Also produce a unix-timestamped .zip alongside the .r file (MERITS
-    # submission convention).
-    import time, zipfile
-    zip_path = output_file.parent / f"SKDUPD_{int(time.time())}.zip"
-    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-        zf.write(output_file, arcname=output_file.name)
-    print(f"Written SKDUPD ZIP to {zip_path}")
 
 
 # ---------------------------------------------------------------------------

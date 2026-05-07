@@ -12,7 +12,7 @@ Usage:
   python netex2tsdupd.py [--input-dir <folder>] [--output <.r file>] [--originator <code>]
 
 Defaults:
-  --input-dir  ../../Source/TSDUPD          (scans for newest *.zip or *.xml)
+  --input-dir  ./Source/TSDUPD            (scans for newest *.zip or *.xml)
   --output     ./NEW_TSDUPD/new_TSDUPD.r
   --originator (derived from <ParticipantRef> in the NeTEx file via PARTICIPANT_TO_RICS)
 
@@ -22,11 +22,6 @@ Configuration/merits_mct_lookup.csv when present.
 """
 
 from __future__ import annotations
-
-import sys
-from pathlib import Path
-# Ensure the project root is on sys.path when this script is run directly
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 import argparse
 import csv
@@ -42,13 +37,13 @@ from merits.tsdupd.csv_model import Footpath, Mct, Meta, Stop, Synonym
 from merits.tsdupd.csvs_to_edifact import CsvsToEdifact
 from merits.tsdupd import definition
 
-from Converter.Shared.edifact_mappings import (
+from edifact_mappings import (
     country_from_uic,
     resolve_originator,
     timezone_for_country,
     to_ascii,
 )
-from Converter.Shared.netex_helpers import (
+from netex_helpers import (
     NS,
     alt_names,
     build_uic_to_mct,
@@ -61,8 +56,7 @@ from Converter.Shared.netex_helpers import (
     validity,
 )
 
-# Configuration/ is three levels up from converter/tsdupd/
-_CONF_DIR = Path(__file__).resolve().parent.parent.parent / "Configuration"
+_CONF_DIR = Path(__file__).resolve().parent / "Configuration"
 _MCT_CSV  = _CONF_DIR / "merits_mct_lookup.csv"
 
 
@@ -262,16 +256,11 @@ def convert(input_dir: Path, output_file: Path, originator: str | None) -> None:
     })
     edifact_text = converter.get()
 
-    # Clean previous TSDUPD outputs in the directory so reruns don't keep
-    # stale .zip archives. Other files (e.g. SKDUPD outputs written to the
-    # same folder) are intentionally left alone.
+    # Clean and recreate the output directory so reruns don't keep stale files.
     output_dir = output_file.parent
     if output_dir.exists():
         for child in output_dir.iterdir():
-            if child.is_file() and (
-                child.name == output_file.name
-                or (child.name.startswith("TSDUPD_") and child.suffix == ".zip")
-            ):
+            if child.is_file():
                 child.unlink()
     output_dir.mkdir(parents=True, exist_ok=True)
     output_file.write_text(edifact_text, encoding="utf-8")
@@ -297,15 +286,14 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         prog="netex2tsdupd",
         description="Convert NeTEx SiteFrame (NSR rail stations) to TSDUPD EDIFACT.",
     )
-    _root = Path(__file__).resolve().parent.parent.parent
     parser.add_argument(
         "--input-dir",
-        default=str(_root / "Source" / "TSDUPD"),
+        default="./Source/TSDUPD",
         help="Folder containing the NeTEx export (*.zip or *.xml). Newest file is used.",
     )
     parser.add_argument(
         "--output",
-        default=str(_root / "NEW_TSDUPD" / "new_TSDUPD.r"),
+        default="./NEW_TSDUPD/new_TSDUPD.r",
     )
     parser.add_argument(
         "--originator",

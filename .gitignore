@@ -13,6 +13,10 @@ __pycache__/
 DOWNLOAD/
 NETEX/
 
-# Generated zip outputs
-NEW_SKDUPD/*.zip
-NEW_SKDUPD/temp.r
+# Generated outputs
+NEW_SKDUPD/
+NEW_TSDUPD/
+
+# Input data (too large / not committed)
+CSV/
+Source/TSDUPD/

@@ -67,11 +67,16 @@ def convert(csv_dir: Path, output_file: Path, strict_optional: bool = False) -> 
     converter.load_csvs(csv_file_name_2_content=csv_payload)
     edifact_text = converter.get()
 
-    # Clean and recreate the output directory so reruns don't keep stale files.
+    # Clean previous TSDUPD outputs in the directory so reruns don't keep
+    # stale .zip archives. Other files (e.g. SKDUPD outputs written to the
+    # same folder) are intentionally left alone.
     output_dir = output_file.parent
     if output_dir.exists():
         for child in output_dir.iterdir():
-            if child.is_file():
+            if child.is_file() and (
+                child.name == output_file.name
+                or (child.name.startswith("TSDUPD_") and child.suffix == ".zip")
+            ):
                 child.unlink()
     output_dir.mkdir(parents=True, exist_ok=True)
     output_file.write_text(edifact_text, encoding="utf-8")

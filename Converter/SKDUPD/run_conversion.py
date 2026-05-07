@@ -26,6 +26,11 @@ Usage:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+# Ensure the project root is on sys.path when this script is run directly
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
 import argparse
 import re
 import time
@@ -41,7 +46,7 @@ from merits.skdupd.csv_model import Meta, Odi, Por, Relation, Train
 from merits.skdupd.csvs_to_edifact import CsvsToEdifact
 from merits.skdupd import definition
 
-from converter.skdupd.netex2skdupd import (
+from Converter.SKDUPD.netex2skdupd import (
     TimetableData,
     _build_station_index,
     build_trains_and_pors,
@@ -49,7 +54,7 @@ from converter.skdupd.netex2skdupd import (
     load_mapping,
     DEFAULT_CONFIG_DIR,
 )
-from converter.shared.edifact_mappings import resolve_originator
+from Converter.Shared.edifact_mappings import resolve_originator
 
 NS = "http://www.netex.org.uk/netex"
 
@@ -334,8 +339,30 @@ def _build_odis_for_train(
             continue
 
         # Map facility names to MERITS codes
-        codes = [facility_map[n] for n in fac_names if n in facility_map]
-        if not codes:
+        # R-prefix (code list 7037, reservation) must go into Odi.reservation
+        # as a subfield qualifier, NOT into tff_or_asd_or_ser (which is code list
+        # 9039 for SER ser_code or 7161 for ASD asd_code).
+        odi_codes: List[str] = []
+        reservation: Optional[str] = None
+        seen: set = set()
+        for raw_code in (facility_map.get(n, "") for n in fac_names):
+            if not raw_code or len(raw_code) < 2:
+                continue
+            prefix, num = raw_code[0], raw_code[1:]
+            if prefix == "S":
+                odi_code = f"S{num}"
+                if odi_code not in seen:
+                    odi_codes.append(odi_code)
+                    seen.add(odi_code)
+            elif prefix == "F":
+                odi_code = f"F{num}"
+                if odi_code not in seen:
+                    odi_codes.append(odi_code)
+                    seen.add(odi_code)
+            elif prefix == "R" and reservation is None:
+                reservation = num  # first R-code; attached as qualifier on each row
+
+        if not odi_codes:
             continue
 
         # MERITS expects 1-based numeric stop positions within the train POR list.
@@ -345,32 +372,16 @@ def _build_odis_for_train(
             por_stop_numbers=por_stop_numbers,
         )
 
-        # Separate codes by prefix into TFF (F), ASD (S), PDT (R) groups
-        tff_codes = [c[1:] for c in codes if c.startswith("F")]
-        asd_codes = [c[1:] for c in codes if c.startswith("S")]
-        pdt_codes = [c[1:] for c in codes if c.startswith("R")]
-
-        tff_val = ";".join(tff_codes) or None
-        asd_val = ";".join(asd_codes) or None
-        pdt_val = ";".join(pdt_codes) or None
-
-        # One ODI per type group that has values
-        for tff_or_asd_or_ser, equipment, reservation in [
-            (tff_val, None, None),
-            (asd_val, None, None),
-            (pdt_val, None, None),
-        ]:
-            if tff_or_asd_or_ser is None:
-                continue
+        for odi_code in odi_codes:
             odi_id_counter[0] += 1
             odis.append(Odi(
                 odi_id=odi_id_counter[0],
                 train_id=train_id,
                 from_stop_number=from_stop_number,
                 to_stop_number=to_stop_number,
-                tff_or_asd_or_ser=tff_or_asd_or_ser,
-                reservation=reservation,
-                equipment=equipment,
+                tff_or_asd_or_ser=odi_code,
+                reservation=None,
+                equipment=None,
                 tariff_or_quantity=None,
             ))
 

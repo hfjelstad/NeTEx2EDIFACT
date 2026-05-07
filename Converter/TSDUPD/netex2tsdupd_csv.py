@@ -27,8 +27,8 @@ import xml.etree.ElementTree as ET
 from datetime import date, datetime
 from pathlib import Path
 
-from converter.shared.edifact_mappings import country_from_uic, resolve_originator
-from converter.shared.netex_helpers import (
+from Converter.Shared.edifact_mappings import country_from_uic, resolve_originator
+from Converter.Shared.netex_helpers import (
     NS,
     alt_names,
     build_uic_to_mct,

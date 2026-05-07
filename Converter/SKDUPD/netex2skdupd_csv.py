@@ -26,7 +26,7 @@ import csv
 from pathlib import Path
 
 # Re-use all parsing/lookup and build logic from the direct converter
-from converter.skdupd.netex2skdupd import (
+from Converter.SKDUPD.netex2skdupd import (
     TimetableData,
     _build_station_index,
     build_trains_and_pors,

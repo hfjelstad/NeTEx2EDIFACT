@@ -81,8 +81,8 @@ def uic_code(stop_place, accept_legacy: bool = True) -> str:
 
 
 def reservation_code(stop_place) -> str:
-    """Return reservation code if present in privateCodes, else ''."""
-    return private_code(stop_place, "reservationCode")
+    """Return the StopPlace id as reservation code (e.g. 'NSR:StopPlace:337')."""
+    return stop_place.get("id", "")
 
 
 # ---------------------------------------------------------------------------

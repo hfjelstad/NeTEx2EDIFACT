@@ -67,7 +67,7 @@ def _dispatch_tsdupd(args: argparse.Namespace) -> None:
 
     if has_input and has_output and not has_csv:
         # NeTEx XML → TSDUPD EDIFACT (direct)
-        from converter.tsdupd.netex2tsdupd import convert
+        from Converter.TSDUPD.netex2tsdupd import convert
         convert(
             xml_path=Path(args.input),
             output_file=Path(args.output),
@@ -75,7 +75,7 @@ def _dispatch_tsdupd(args: argparse.Namespace) -> None:
         )
     elif has_input and has_csv and not has_output:
         # NeTEx XML → TSDUPD CSV (intermediate)
-        from converter.tsdupd.netex2tsdupd_csv import convert
+        from Converter.TSDUPD.netex2tsdupd_csv import convert
         convert(
             xml_path=Path(args.input),
             csv_dir=Path(args.csv_dir),
@@ -83,7 +83,7 @@ def _dispatch_tsdupd(args: argparse.Namespace) -> None:
         )
     elif has_csv and has_output and not has_input:
         # TSDUPD CSV -> EDIFACT
-        from converter.tsdupd.csv2TSDUPD import convert
+        from Converter.TSDUPD.csv2TSDUPD import convert
         convert(
             csv_dir=Path(args.csv_dir),
             output_file=Path(args.output),
@@ -120,7 +120,7 @@ def _dispatch_skdupd(args: argparse.Namespace) -> None:
         if args.station_pattern:
             forwarded += ["--station-pattern", args.station_pattern]
         sys.argv = forwarded
-        from converter.skdupd.run_conversion import main as batch_main
+        from Converter.SKDUPD.run_conversion import main as batch_main
         batch_main()
         return
 
@@ -131,7 +131,7 @@ def _dispatch_skdupd(args: argparse.Namespace) -> None:
 
     if has_tt and has_stations and has_output and not has_csv:
         # NeTEx timetable + stations → SKDUPD EDIFACT (direct, single operator)
-        from converter.skdupd.netex2skdupd import main as direct_main
+        from Converter.SKDUPD.netex2skdupd import main as direct_main
         forwarded = [
             "netex2skdupd.py",
             "--timetable", args.timetable,
@@ -146,7 +146,7 @@ def _dispatch_skdupd(args: argparse.Namespace) -> None:
         direct_main()
     elif has_tt and has_stations and has_csv and not has_output:
         # NeTEx timetable + stations → SKDUPD CSV
-        from converter.skdupd.netex2skdupd_csv import main as csv_main
+        from Converter.SKDUPD.netex2skdupd_csv import main as csv_main
         forwarded = [
             "netex2skdupd_csv.py",
             "--timetable", args.timetable,
@@ -159,7 +159,7 @@ def _dispatch_skdupd(args: argparse.Namespace) -> None:
         csv_main()
     elif has_csv and has_output and not has_tt:
         # SKDUPD CSV -> EDIFACT
-        from converter.skdupd.csv2SKDUPD_merits import convert
+        from Converter.SKDUPD.csv2SKDUPD_merits import convert
         convert(
             csv_dir=Path(args.csv_dir),
             output_file=Path(args.output),
