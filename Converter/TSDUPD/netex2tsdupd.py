@@ -2,7 +2,7 @@
 """
 netex2tsdupd.py
 ~~~~~~~~~~~~~~~
-Convert a NeTEx SiteFrame (NSR rail stations) directly to a TSDUPD EDIFACT
+Convert a NeTEx SiteFrame directly to a TSDUPD EDIFACT
 file, bypassing the CSV intermediate step.
 
 Uses MERITS RowsInMemory to feed dataclass instances straight into the
@@ -16,8 +16,8 @@ Defaults:
   --output     ./NEW_TSDUPD/new_TSDUPD.r
   --originator (derived from <ParticipantRef> in the NeTEx file via PARTICIPANT_TO_RICS)
 
-Drop a Tiamat export (e.g. tiamat-export-RailStations-*.zip or *.xml) into
-the input folder and run without arguments. MCT values are read from
+Drop a NeTEx station export (*.zip or *.xml) into the input folder and run
+without arguments. MCT values are read from
 Configuration/merits_mct_lookup.csv when present.
 """
 
@@ -115,15 +115,14 @@ def _load_mct_csv(csv_path: Path) -> Dict[str, int]:
 # EDIFACT-specific helpers (only what is unique to TSDUPD lives here)
 # ---------------------------------------------------------------------------
 
-# MERITS/PRIFIS code list 3227 — location function qualifier
-# Source: merits-prifis_code-lists-version 26.1, tag 3227
+# UN/EDIFACT code list 3227 — location function qualifier
 _MODE_TO_FUNCTION_CODE: Dict[str, str] = {
-    "rail":      "29",   # Railway station
+    "rail":      "29",  # Station/terminal
     "metro":     "29",
     "tram":      "29",
-    "water":     "255",  # Ferry terminal
-    "bus":       "254",  # Bus station
-    "coach":     "254",
+    "water":     "50",  # Port/ferry terminal
+    "bus":       "21",  # Bus station
+    "coach":     "21",
     "telecabin": "29",
     "funicular": "29",
 }
@@ -166,8 +165,12 @@ def _to_dms(value: str, hemispheres: tuple, width: int) -> str:
 # Conversion
 # ---------------------------------------------------------------------------
 
-def convert(input_dir: Path, output_file: Path, originator: str | None) -> None:
-    source = _find_newest(input_dir, "*.zip", "*.xml")
+def convert(input_dir: Path, output_file: Path, originator: str | None,
+            *, input_file: Path | None = None) -> None:
+    if input_file is not None:
+        source = input_file
+    else:
+        source = _find_newest(input_dir, "*.zip", "*.xml")
     if source is None:
         raise FileNotFoundError(
             f"No *.zip or *.xml found in {input_dir}. "
@@ -296,7 +299,7 @@ def convert(input_dir: Path, output_file: Path, originator: str | None) -> None:
 def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="netex2tsdupd",
-        description="Convert NeTEx SiteFrame (NSR rail stations) to TSDUPD EDIFACT.",
+        description="Convert NeTEx SiteFrame to TSDUPD EDIFACT.",
     )
     _root = Path(__file__).resolve().parent.parent.parent
     parser.add_argument(

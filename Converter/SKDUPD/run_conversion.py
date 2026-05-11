@@ -17,9 +17,9 @@ ServiceFacilitySet data is present on JourneyParts.
 Usage:
   python run_conversion.py
       --source-dir  Source/
-      --stations    Source/RailStations_latest.zip
+      --stations    Source/stations.zip
       --output      NEW_SKDUPD/new_SKDUPD.r
-      --originator  NSR
+      [--originator <RICS-code>]
       [--config-dir Configuration/]
       [--station-pattern RailStations]
 """
@@ -684,8 +684,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--originator",
-        default="NSR",
-        help="MERITS originator code used in Meta record (default: NSR).",
+        default=None,
+        help="Override EDIFACT ORG/3036 RICS code. Auto-derived from ParticipantRef when omitted.",
     )
     parser.add_argument(
         "--config-dir",

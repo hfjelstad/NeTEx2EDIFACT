@@ -2,7 +2,7 @@
 """
 netex2tsdupd_csv.py
 ~~~~~~~~~~~~~~~~~~~
-Convert a trimmed NeTEx SiteFrame XML (NSR rail stations) to the CSV files
+Convert a NeTEx SiteFrame XML to the CSV files
 expected by the MERITS TSDUPD converter (csv2TSDUPD.py).
 
 Output files written to ./CSV/:
@@ -14,7 +14,7 @@ Usage:
   python netex2tsdupd_csv.py [--input <xml>] [--csv-dir <dir>] [--originator <code>]
 
 Defaults:
-  --input       ../Nordic source material/tiamat-export-RailStations-202604262300285592.trimmed.uic9.xml
+  --input       (required)
   --csv-dir     ./CSV
   --originator  (derived from <ParticipantRef> in the NeTEx file via PARTICIPANT_TO_RICS)
 """
@@ -101,7 +101,7 @@ def convert(xml_path: Path, csv_dir: Path, originator) -> None:
             "M",        # function_code: M = major station (default; adjust as needed)
             uic,
             name,
-            "",         # location_short_name — not in NSR export
+            "",         # location_short_name
             lat,
             lon,
             valid_from,
@@ -163,8 +163,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--input",
-        default="../Nordic source material/tiamat-export-RailStations-202604262300285592.trimmed.uic9.xml",
-        help="Path to trimmed NeTEx XML file.",
+        required=True,
+        help="Path to NeTEx SiteFrame XML file.",
     )
     parser.add_argument(
         "--csv-dir",

@@ -99,7 +99,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--timetable", required=True)
     parser.add_argument("--stations", required=True)
     parser.add_argument("--csv-dir", default="./CSV")
-    parser.add_argument("--originator", default="NSR")
+    parser.add_argument("--originator", default=None,
+                         help="Override EDIFACT ORG/3036 RICS code. Auto-derived from ParticipantRef when omitted.")
     return parser
 
 

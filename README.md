@@ -1,17 +1,30 @@
 # NeTEx2EDIFACT
 
-Converts **NeTEx Nordic profile** data to **MERITS EDIFACT** format (both TSDUPD and SKDUPD).
+Converts **NeTEx** data to **MERITS EDIFACT** format (both TSDUPD and SKDUPD).
+
+## Quick start
+
+1. Place NeTEx files in `Source/`:
+   - Any `.zip` or `.xml` files — the converter auto-detects content by scanning for `StopPlace` (→ TSDUPD) and `ServiceJourney` (→ SKDUPD) elements. No naming convention required.
+
+2. Run:
+   ```
+   python convert.py
+   ```
+   Or double-click `convert.bat` on Windows.
+
+3. Collect output from `Output/`:
+   - `TSDUPD.r` + `TSDUPD_<unix>.zip` — station EDIFACT
+   - `SKDUPD.r` + `SKDUPD_<unix>.zip` — timetable EDIFACT
+
+The converter auto-detects file content, runs TTL-driven pre-flight validation,
+converts both message types, archives source files with a conversion report,
+and cleans up after itself.
 
 ## Documentation
 
-- [TSDUPD Converter Guide](../Guides/TSDUPD/TSDUPD_Converter_Guide.md) - station/location conversion design, profile rationale, and pipeline choices.
-- [SKDUPD Converter Guide](../Guides/SKDUPD/SKDUPD_Converter_Guide.md) - timetable conversion design, calendar logic, ODI handling, and converter trade-offs.
-
-Source data is the Norwegian national access point (NSR/Entur):
-- Station/stop place data — exported from Tiamat as a NeTEx `SiteFrame`
-- Timetable data — operator NeTEx ZIPs containing `ServiceFrame` + `TimetableFrame`
-
-Both message types are supported with two pipeline variants: a **direct** path (NeTEx → EDIFACT in one step) and a **CSV intermediate** path (NeTEx → CSV → EDIFACT) for inspection and manual correction.
+- [TSDUPD Converter Guide](../Guides/TSDUPD/TSDUPD_Converter_Guide.md) — station/location conversion
+- [SKDUPD Converter Guide](../Guides/SKDUPD/SKDUPD_Converter_Guide.md) — timetable conversion
 
 ## Requirements
 
@@ -25,192 +38,104 @@ Both message types are supported with two pipeline variants: a **direct** path (
 
 ```
 NeTEx2EDIFACT/
-├── run.py                        ← single entry point (dispatcher)
-├── converter/
-│   ├── shared/                   ← NeTEx parsing + EDIFACT vocab (RICS, ISO, TZ)
-│   ├── tsdupd/                   ← TSDUPD pipelines (direct, csv, csv→edifact)
-│   └── skdupd/                   ← SKDUPD pipelines (direct, csv, csv→edifact, batch)
-├── Configuration/                ← mapping files (brand, facility, service mode)
-├── Source/                       ← input NeTEx ZIPs
-├── CSV/                          ← intermediate CSV
-├── NEW_TSDUPD/  NEW_SKDUPD/      ← output folders
-└── scripts/debugging/            ← ad-hoc inspection scripts
+├── convert.py              ← zero-config entry point (drop files, run, done)
+├── convert.bat             ← Windows double-click launcher
+├── Converter/              ← all conversion code
+│   ├── Shared/             ← NeTEx parsing + EDIFACT vocab (RICS, ISO, TZ)
+│   ├── TSDUPD/             ← TSDUPD pipelines (direct, csv, csv→edifact)
+│   ├── SKDUPD/             ← SKDUPD pipelines (direct, csv, csv→edifact, batch)
+│   ├── validate.py         ← TTL-driven pre-flight validation
+│   ├── run.py              ← power-user CLI with explicit args
+│   └── tests/              ← test suite
+├── Configuration/          ← mapping files (brand, facility, service mode, MCT)
+├── Source/                 ← input: drop NeTEx ZIPs/XMLs here
+├── Output/                 ← output: EDIFACT files appear here
+├── Archive/                ← auto-archived source + report.txt per run
+└── Legacy/                 ← deprecated scripts (gitignored)
 ```
 
-All pipelines are invoked through `run.py`. Which pipeline runs is decided by
-the combination of arguments supplied:
+## How it works
 
-| Inputs                                           | Pipeline                 |
-|--------------------------------------------------|--------------------------|
-| `--input X.xml --output Y.r`                     | NeTEx → EDIFACT (direct) |
-| `--input X.xml --csv-dir DIR`                    | NeTEx → CSV              |
-| `--csv-dir DIR --output Y.r`                     | CSV → EDIFACT            |
-| `--batch …` *(skdupd only)*                      | multi-operator batch     |
+`convert.py` performs these steps automatically:
 
-Show help: `python run.py --help`, `python run.py tsdupd --help`, `python run.py skdupd --help`.
+1. **Scan** — peeks inside each file in `Source/` to detect StopPlace (→ TSDUPD) or ServiceJourney (→ SKDUPD) content
+2. **Validate** — checks rules from `uic-edifact-ontology.ttl` (existence of required elements, well-formedness)
+3. **Convert TSDUPD** — stations with UIC codes → EDIFACT location messages
+4. **Convert SKDUPD** — timetables × station index → EDIFACT train messages
+5. **Archive** — moves source files to `Archive/<timestamp>/` with a `report.txt` log
+6. **Clean** — clears `Output/` before each run
 
 ## Source files
 
-Place source NeTEx ZIP files in `Source/`:
-
 | File | Content |
 |------|---------|
-| `RailStations_latest.zip` | NSR Tiamat rail station export (`SiteFrame`) — used as NAP station reference |
-| `<operator>_<date>.zip`   | Operator timetable NeTEx ZIP with a shared file (`_*.xml`) and one or more journey files |
+| `RailStations_latest.zip` | Station export (SiteFrame) — rail + bus stops with UIC codes |
+| `<operator>_<date>.zip` | Operator timetable NeTEx ZIP (ServiceFrame + TimetableFrame) |
 
-## TSDUPD — Station location messages
+The station file should contain `privateCodes/PrivateCode[@type='uicCode']` on each
+StopPlace. Both rail stations (0076*) and bus stops (9976*) are supported.
 
-TSDUPD carries station identity, coordinates, names, synonyms and **minimum
-connection times** (extracted from `SiteConnection` self-loops where
-`From.ref == To.ref`). It is independent of timetables and only needs to be
-re-sent when station data changes.
+## Power-user CLI
 
-### Direct (NeTEx → EDIFACT)
+For fine-grained control, use `Converter/run.py` directly:
 
 ```bash
-python run.py tsdupd \
-  --input  "Source/RailStations_latest.zip" \
-  --output NEW_TSDUPD/new_TSDUPD.r \
-  --originator NSR
+# TSDUPD — direct
+python Converter/run.py tsdupd --input Source/stations.zip --output Output/TSDUPD.r
+
+# SKDUPD — direct
+python Converter/run.py skdupd --timetable Source/tt.zip --stations Source/stations.zip --output Output/SKDUPD.r
+
+# SKDUPD — batch (all operators in Source/)
+python Converter/run.py skdupd --batch --source-dir Source/ --output Output/SKDUPD.r
 ```
 
-Outputs:
-- `NEW_TSDUPD/new_TSDUPD.r` — interchange file
-- `NEW_TSDUPD/TSDUPD_<unix>.zip` — compressed delivery archive
+Show help: `python Converter/run.py --help`
 
-### Via CSV intermediate
+## UIC code resolution
 
-```bash
-# Step 1 — produce CSV files in CSV/
-python run.py tsdupd \
-  --input      "Source/RailStations_latest.zip" \
-  --csv-dir    ./CSV \
-  --originator NSR
+The converter handles three encoding variants found in NeTEx exports:
 
-# Step 2 — build EDIFACT from CSV
-python run.py tsdupd --csv-dir ./CSV --output NEW_TSDUPD/new_TSDUPD.r
-```
+| Pattern | Location | Notes |
+|---------|----------|-------|
+| v2.0 (preferred) | `StopPlace/privateCodes/PrivateCode[@type='uicCode']` | Case-insensitive match |
+| Legacy singleton | `StopPlace/PrivateCode` | Fallback: direct child, no type attribute |
+| Tiamat export | `StopPlace/keyList/KeyValue[Key='uicCode']` | 7-digit, zero-padded to 9 |
 
-CSV files written to `CSV/`:
+## SKDUPD stop resolution
 
-| File | Description |
-|------|-------------|
-| `meta.csv` | Message metadata (reference, dates, originator) |
-| `TSDUPD_STOP.csv` | One row per station: UIC code, name, coordinates, country |
-| `TSDUPD_SYNONYM.csv` | Alternative names by language (populated if source has `AlternativeName`) |
-| `TSDUPD_MCT.csv` | Minimum connection times (populated from `SiteConnection` self-loops) |
-| `TSDUPD_FOOTPATH.csv` | Inter-station footpaths (empty — not modelled in NSR) |
-
-### UIC code resolution (station file)
-
-The converter handles three encoding variants found in NSR exports:
-
-| Pattern           | Location                                              | Notes |
-|-------------------|-------------------------------------------------------|-------|
-| v2.0              | `StopPlace/privateCodes/PrivateCode[@type='uicCode']` | Preferred |
-| Legacy singleton  | `StopPlace/PrivateCode`                               | 9-digit value, no type attribute |
-| Raw Tiamat export | `StopPlace/keyList/KeyValue[Key='uicCode']`           | 7-digit, zero-padded to 9 |
-
-## SKDUPD — Train schedule messages
-
-SKDUPD carries the full timetable: trains, stop-times, platforms, and operating days.
-
-UIC codes and platform numbers are resolved via the NAP station file:
+UIC codes and platforms are resolved via the station index:
 
 ```
 ScheduledStopPoint
   → PassengerStopAssignment (timetable shared file)
-      → NSR Quay (station file)
-          → parent StopPlace/PrivateCode  →  Por.uic
-          → Quay/PublicCode               →  Por.arrival_platform / departure_platform
+      → Quay (station file)
+          → parent StopPlace/PrivateCode  →  POR uic
+          → Quay/PublicCode               →  POR platform
 ```
 
-### Direct (NeTEx → EDIFACT)
+Journeys with <2 UIC-resolvable stops are skipped. Non-rail modes (bus, coach)
+are included when their stops have UIC codes; mode breakdown is shown in output.
 
-```bash
-python run.py skdupd \
-  --timetable  "Source/flb_2024-12-05T14_37_53.106.zip" \
-  --stations   "Source/RailStations_latest.zip" \
-  --output     NEW_SKDUPD/new_SKDUPD.r \
-  --originator FLB
-```
+## Operating days
 
-### Via CSV intermediate
-
-```bash
-# Step 1
-python run.py skdupd \
-  --timetable  "Source/flb_2024-12-05T14_37_53.106.zip" \
-  --stations   "Source/RailStations_latest.zip" \
-  --csv-dir    ./CSV \
-  --originator FLB
-
-# Step 2
-python run.py skdupd --csv-dir ./CSV --output NEW_SKDUPD/new_SKDUPD.r
-```
-
-CSV files written to `CSV/`:
-
-| File | Description |
-|------|-------------|
-| `meta.csv` | Message metadata |
-| `SKDUPD_TRAIN.csv` | One row per `ServiceJourney`: train number, operator, first/last day, operation days bitmask |
-| `SKDUPD_POR.csv` | One row per stop-time: UIC, arrival, departure, platform |
-| `SKDUPD_RELATION.csv` | Connection guarantees (empty — not modelled in source) |
-| `SKDUPD_ODI.csv` | On-demand information segments (populated from `ServiceFacilitySet` where available) |
-
-### Batch — all operators in one EDIFACT delivery
-
-Processes all operator ZIPs in `Source/` (skipping the station ZIP) as a single
-SKDUPD delivery. Uses `Configuration/` mapping files to populate
-`Train.service_mode` (brand code) and `Train.service_provider` (operator code),
-and builds ODI records from `ServiceFacilitySet` data where available.
-
-```bash
-python run.py skdupd --batch \
-  --source-dir Source/ \
-  --output     NEW_SKDUPD/new_SKDUPD_batch.r \
-  --originator NSR
-```
-
-Station ZIP is auto-detected from `--source-dir` (any file matching `RailStations*.zip`).
-Override with `--stations` or `--station-pattern` if needed.
-
-### Operating days
-
-Operating dates are resolved exclusively via
-`DatedServiceJourney → OperatingDayRef → OperatingDay/CalendarDate`. The
-`operation_days` column in `SKDUPD_TRAIN.csv` is a binary bitmask string from
-`first_day` to `last_day` inclusive.
-
-DatedServiceJourney is required; conversion will produce empty
-`operation_days` if DSJ data is missing.
-
-## Module inventory
-
-All modules live under the `converter/` package and can also be invoked
-directly via `python -m converter.<sub>.<module>` if you need to bypass the
-dispatcher.
-
-| Module | Role |
-|--------|------|
-| `converter.shared.netex_helpers`     | Shared NeTEx XML parsing helpers (UIC, MCT, codespaces, …) |
-| `converter.shared.edifact_mappings`  | RICS / ISO country / timezone tables, ASCII fold |
-| `converter.tsdupd.netex2tsdupd`      | NeTEx station ZIP → TSDUPD EDIFACT (direct) |
-| `converter.tsdupd.netex2tsdupd_csv`  | NeTEx station ZIP → TSDUPD CSV |
-| `converter.tsdupd.csv2TSDUPD`        | TSDUPD CSV → TSDUPD EDIFACT (MERITS) |
-| `converter.skdupd.netex2skdupd`      | NeTEx timetable + station ZIPs → SKDUPD EDIFACT (direct) |
-| `converter.skdupd.netex2skdupd_csv`  | NeTEx timetable + station ZIPs → SKDUPD CSV |
-| `converter.skdupd.csv2SKDUPD_merits` | SKDUPD CSV → SKDUPD EDIFACT (MERITS) |
-| `converter.skdupd.run_conversion`    | Multi-operator batch over `Source/` |
+Resolved exclusively via `DatedServiceJourney → OperatingDayRef → OperatingDay/CalendarDate`.
+The operation days bitmask runs from first_day to last_day inclusive.
 
 ## Configuration
 
-Mapping files in `Configuration/` are used by the SKDUPD converters
-(`netex2skdupd` and `run_conversion`):
+Mapping files in `Configuration/`:
 
 | File | Description |
 |------|-------------|
-| `mapping_brand.txt`        | NeTEx `TransportSubmode` → MERITS brand code (→ `Train.service_mode`). Format: `submode:code`, e.g. `regionalRail:92` |
-| `mapping_facility.txt`     | NeTEx facility name → MERITS ODI code (F=TFF/facility, S=ASD/service, R=PDT/reservation). E.g. `bistro:F47` |
-| `mapping_service_mode.txt` | NeTEx `TransportMode` → MERITS mode code. E.g. `rail:37` |
+| `mapping_brand.txt` | `TransportSubmode` → MERITS brand code (e.g. `regionalRail:92`) |
+| `mapping_facility.txt` | Facility name → ODI code (e.g. `bistro:F47`) |
+| `mapping_service_mode.txt` | `TransportMode` → mode code (e.g. `rail:37`, `bus:32`) |
+| `merits_mct_lookup.csv` | Minimum connection times by UIC code |
+
+## Testing
+
+```bash
+cd Converter
+python -m pytest tests/ -q
+```

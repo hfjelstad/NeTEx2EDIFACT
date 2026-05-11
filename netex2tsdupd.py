@@ -2,7 +2,7 @@
 """
 netex2tsdupd.py
 ~~~~~~~~~~~~~~~
-Convert a NeTEx SiteFrame (NSR rail stations) directly to a TSDUPD EDIFACT
+Convert a NeTEx SiteFrame directly to a TSDUPD EDIFACT
 file, bypassing the CSV intermediate step.
 
 Uses MERITS RowsInMemory to feed dataclass instances straight into the
@@ -16,8 +16,8 @@ Defaults:
   --output     ./NEW_TSDUPD/new_TSDUPD.r
   --originator (derived from <ParticipantRef> in the NeTEx file via PARTICIPANT_TO_RICS)
 
-Drop a Tiamat export (e.g. tiamat-export-RailStations-*.zip or *.xml) into
-the input folder and run without arguments. MCT values are read from
+Drop a NeTEx station export (*.zip or *.xml) into the input folder and run
+without arguments. MCT values are read from
 Configuration/merits_mct_lookup.csv when present.
 """
 
@@ -284,7 +284,7 @@ def convert(input_dir: Path, output_file: Path, originator: str | None) -> None:
 def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="netex2tsdupd",
-        description="Convert NeTEx SiteFrame (NSR rail stations) to TSDUPD EDIFACT.",
+        description="Convert NeTEx SiteFrame to TSDUPD EDIFACT.",
     )
     parser.add_argument(
         "--input-dir",

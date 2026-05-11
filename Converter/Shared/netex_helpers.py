@@ -68,7 +68,7 @@ def uic_code(stop_place, accept_legacy: bool = True) -> str:
     Prefers the typed NeTEx 2.0 form
     ``privateCodes/PrivateCode[@type='uicCode']``. If ``accept_legacy`` is
     true (default) and that lookup fails, falls back to the legacy singleton
-    direct child ``<PrivateCode>NNN</PrivateCode>`` used by older NSR exports.
+    direct child ``<PrivateCode>NNN</PrivateCode>`` used by older exports.
     """
     code = private_code(stop_place, "uicCode")
     if code:
@@ -81,7 +81,7 @@ def uic_code(stop_place, accept_legacy: bool = True) -> str:
 
 
 def reservation_code(stop_place) -> str:
-    """Return the StopPlace id as reservation code (e.g. 'NSR:StopPlace:337')."""
+    """Return the StopPlace id as reservation code (e.g. 'ORG:StopPlace:337')."""
     return stop_place.get("id", "")
 
 

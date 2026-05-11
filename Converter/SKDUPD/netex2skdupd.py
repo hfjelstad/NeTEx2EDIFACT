@@ -1,22 +1,24 @@
 # -*- coding: utf-8 -*-
 """
-netex2skdupd.py  —  Mode 1: NeTEx timetable + NAP station file → SKDUPD EDIFACT
+netex2skdupd.py  —  Mode 1: NeTEx timetable + station file → SKDUPD EDIFACT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Converts a Nordic NeTEx timetable ZIP together with a station ZIP from a NAP
-(e.g. NSR/Entur RailStations export) directly to a SKDUPD EDIFACT file.
+Converts a NeTEx timetable ZIP together with a station ZIP directly to a
+SKDUPD EDIFACT file.
 
 Lookup chain:
   ServiceJourney.PrivateCode          → Train.service_number
   DatedServiceJourney → OperatingDay  → Train.first_day / last_day / operation_days
-  TimetabledPassingTime → SPiJP → SSP → station file PSA → NSR Quay
+  TimetabledPassingTime → SPiJP → SSP → station file PSA → Quay
                                        → parent StopPlace.PrivateCode → Por.uic
                                        → Quay.PublicCode              → Por.arrival/departure_platform
 
 Usage:
-  python netex2skdupd.py --timetable Source/flb_2024-12-05T14_37_53.106.zip
-                         --stations  Source/RailStations_latest.zip
+  python netex2skdupd.py --timetable Source/timetable.zip
+                         --stations  Source/stations.zip
                          --output    NEW_SKDUPD/new_SKDUPD.r
-                         --originator FLB
+
+The originator (EDIFACT ORG/3036 RICS code) is derived automatically from
+<ParticipantRef> in the NeTEx file. Use --originator to override.
 """
 
 from __future__ import annotations
@@ -39,6 +41,7 @@ from merits.skdupd import definition
 
 from Converter.Shared.netex_helpers import (
     NS,
+    participant_ref,
     private_code,
     ref as netex_ref,
     rows_in_memory,
@@ -163,10 +166,8 @@ def _build_station_index(station_path: Path) -> Dict[str, Tuple[str, str]]:
     """
     Returns quay_id → (uic_code, platform_public_code)
     by reading StopPlace UIC and nested Quay/PublicCode from a station NeTEx
-    source.  Accepts either a ZIP archive of XML files (e.g. NSR
-    RailStations_latest.zip) or a single .xml document
-    (e.g. nsr_railstations_with_mct.xml that includes Nordic neighbour
-    stations such as Göteborg, Helsingborg).
+    source.  Accepts either a ZIP archive of XML files or a single .xml
+    document.
 
     Child StopPlaces (those with a ParentSiteRef) inherit the parent's UIC
     code when their own privateCodes/uicCode is empty.  This pattern is
@@ -232,7 +233,7 @@ def _build_station_index(station_path: Path) -> Dict[str, Tuple[str, str]]:
 # ---------------------------------------------------------------------------
 
 class TimetableData:
-    """Parses a Nordic NeTEx timetable ZIP (shared file + one or more journey files)."""
+    """Parses a NeTEx timetable ZIP (shared file + one or more journey files)."""
 
     def __init__(self, timetable_zip: Path):
         self.shared_root: Optional[ET.Element] = None
@@ -240,7 +241,7 @@ class TimetableData:
         self._load(timetable_zip)
 
         # Lookups built from shared file
-        self.ssp_to_quay: Dict[str, str] = {}          # SSP id → Quay id (NSR)
+        self.ssp_to_quay: Dict[str, str] = {}          # SSP id → Quay id
         self.od_to_date: Dict[str, date] = {}           # OperatingDay id → date
         self._build_shared_lookups()
 
@@ -343,7 +344,6 @@ def build_trains_and_pors(
     service_mode_map: Optional[Dict[str, str]] = None,
     spijp_remap_out: Optional[Dict[int, Dict[str, int]]] = None,
     train_sjs_out: Optional[List[ET.Element]] = None,
-    train_brands_out: Optional[List[str]] = None,
 ) -> Tuple[List[Meta], List[Train], List[Por]]:
     """
     Convert parsed timetable + quay index into MERITS dataclass instances.
@@ -366,6 +366,12 @@ def build_trains_and_pors(
     # MERITS expects `reference` to be a 15-char timestamp 'YYYY-MM-DDTHHMMSS'.
     # The HDR collector takes reference[:-2] for date_1 (qualifier 45).
     reference = datetime.now().strftime("%Y-%m-%dT%H%M%S")
+    meta_list = [Meta(
+        reference=reference,
+        validity_first_date=today,
+        validity_last_date=today,
+        originator=originator,
+    )]
 
     trains: List[Train] = []
     pors: List[Por] = []
@@ -379,20 +385,10 @@ def build_trains_and_pors(
     # indicate genuine data problems) can be distinguished from skipped
     # buses or coaches (which are expected for SKDUPD).
     skipped_by_mode: Dict[str, int] = {}
+    converted_by_mode: Dict[str, int] = {}
     skipped_rail_details: List[Tuple[str, str, int, int]] = []  # (sj_id, train_number, total_pt, valid_stops)
 
     sj_dates = tt.dated_journeys_by_sj()
-    # Derive the timetable validity window from actual operating dates so the
-    # MERITS HDR segment reflects the real schedule period (not just today).
-    all_dates_flat = [d for dlist in sj_dates.values() for d in dlist]
-    timetable_first = min(all_dates_flat).isoformat() if all_dates_flat else today
-    timetable_last = max(all_dates_flat).isoformat() if all_dates_flat else today
-    meta_list = [Meta(
-        reference=reference,
-        validity_first_date=timetable_first,
-        validity_last_date=timetable_last,
-        originator=originator,
-    )]
 
     for sj in tt.service_journeys():
         sj_id = sj.get("id", "")
@@ -413,24 +409,12 @@ def build_trains_and_pors(
         # PRD/E989(1)/7009 service_mode = transport mode code (e.g. rail → 37)
         tm_el = sj.find(f"{{{NS}}}TransportMode")
         tm_value = (tm_el.text or "").strip() if tm_el is not None else ""
-        # Check TransportSubmode first — submode takes priority over mode.
-        # e.g. TransportMode=bus + BusSubmode=railReplacementBus → key "bus.railReplacementBus"
-        tsm_el = sj.find(f"{{{NS}}}TransportSubmode")
-        tm_key = tm_value
-        service_brand: Optional[str] = None
-        if tsm_el is not None:
-            for sub_el in tsm_el:
-                sub_val = (sub_el.text or "").strip()
-                # Brand lookup uses submode value directly.
-                if brand_map and sub_val in brand_map:
-                    service_brand = brand_map[sub_val]
-                composite_key = f"{tm_value}.{sub_val}"
-                if service_mode_map and composite_key in service_mode_map:
-                    tm_key = composite_key
-                break  # only first child of TransportSubmode matters
         service_mode: Optional[str] = None
-        if service_mode_map and tm_key in service_mode_map:
-            service_mode = service_mode_map[tm_key]
+        if service_mode_map and tm_value in service_mode_map:
+            service_mode = service_mode_map[tm_value]
+        # brand_map currently unused for Train.service_mode (would feed PDT/service_brand,
+        # which is not modelled in the MERITS Train CSV). Kept in signature for callers.
+        _ = brand_map
 
         # Operating dates — from DatedServiceJourney (required)
         dates = sj_dates.get(sj_id, [])
@@ -470,16 +454,18 @@ def build_trains_and_pors(
         # Skip journeys that collapse to <2 UIC-resolvable stops; the
         # accompanying ODIs are also suppressed because no Train is emitted.
         if total_stops < 2:
-            skipped_trains += 1
             mode_key = tm_value or "(none)"
             skipped_by_mode[mode_key] = skipped_by_mode.get(mode_key, 0) + 1
             if tm_value == "rail":
+                skipped_trains += 1
                 skipped_rail_details.append(
                     (sj_id, train_number, len(passing_times_sorted), total_stops)
                 )
             continue
 
         train_id += 1
+        conv_mode_key = tm_value or "(none)"
+        converted_by_mode[conv_mode_key] = converted_by_mode.get(conv_mode_key, 0) + 1
         trains.append(Train(
             train_id=train_id,
             service_number=train_number,
@@ -497,8 +483,6 @@ def build_trains_and_pors(
         ))
         if train_sjs_out is not None:
             train_sjs_out.append(sj)
-        if train_brands_out is not None:
-            train_brands_out.append(service_brand or "")
 
         if spijp_remap_out is not None:
             spijp_remap_out[train_id] = {
@@ -543,15 +527,9 @@ def build_trains_and_pors(
                 dep = None
                 dep_off = None
 
-            # Resolve boarding/alighting restrictions for intermediate stops only.
-            # The first stop's origin role and the last stop's terminus role are
-            # already communicated by the absence of arrival/departure time.
-            # Emitting a TRF code on top confuses MERITS (origin shows as "N").
+            # Resolve boarding/alighting restrictions
             for_boarding, for_alighting = tt.spijp_restrictions.get(spijp_ref, (True, True))
-            if stop_num == 1 or stop_num == total_stops:
-                traffic_code = None
-            else:
-                traffic_code = _traffic_restriction_code(for_boarding, for_alighting)
+            traffic_code = _traffic_restriction_code(for_boarding, for_alighting)
             if traffic_code is not None:
                 restricted_stops += 1
 
@@ -576,13 +554,19 @@ def build_trains_and_pors(
                 check_in=None,
             ))
 
-    print(f"Converted {len(trains)} trains, {len(pors)} stop-times "
+    non_rail_skipped = sum(n for m, n in skipped_by_mode.items() if m != "rail")
+    non_rail_converted = sum(n for m, n in converted_by_mode.items() if m != "rail")
+    unit = "journeys" if non_rail_converted else "trains"
+    print(f"Converted {len(trains)} {unit}, {len(pors)} stop-times "
           f"({skipped_stops} stops without UIC, {restricted_stops} with restrictions"
-          + (f", {skipped_trains} trains skipped (<2 valid stops)" if skipped_trains else "")
+          + (f", {skipped_trains} rail journeys skipped (<2 valid stops)" if skipped_trains else "")
           + ")")
-    if skipped_by_mode:
-        breakdown = ", ".join(f"{m}={n}" for m, n in sorted(skipped_by_mode.items(), key=lambda kv: -kv[1]))
-        print(f"  Skipped by TransportMode: {breakdown}")
+    if non_rail_converted:
+        conv_breakdown = ", ".join(f"{m}={n}" for m, n in sorted(converted_by_mode.items(), key=lambda kv: -kv[1]))
+        print(f"  Converted by mode: {conv_breakdown}")
+    if non_rail_skipped:
+        skip_breakdown = ", ".join(f"{m}={n}" for m, n in sorted(skipped_by_mode.items(), key=lambda kv: -kv[1]) if m != "rail")
+        print(f"  Skipped non-rail modes: {skip_breakdown}")
     if skipped_rail_details:
         rail_n = len(skipped_rail_details)
         print(f"  WARNING: {rail_n} rail journey(s) skipped due to <2 UIC-resolvable stops:")
@@ -601,7 +585,7 @@ def convert(
     timetable_zip: Path,
     station_zip: Path,
     output_file: Path,
-    originator: str,
+    originator: str | None = None,
     config_dir: Optional[Path] = None,
 ) -> None:
     cfg_dir = config_dir or DEFAULT_CONFIG_DIR
@@ -611,9 +595,6 @@ def convert(
         print(f"  Loaded brand map: {len(brand_map)} entries")
     if service_mode_map:
         print(f"  Loaded service-mode map: {len(service_mode_map)} entries")
-
-    resolved_originator = resolve_originator(originator, None)
-    print(f"Originator {originator!r} -> RICS {resolved_originator!r}")
 
     print(f"Loading station index from {station_zip.name} ...")
     quay_index = _build_station_index(station_zip)
@@ -625,98 +606,26 @@ def convert(
     print(f"  {len(tt.spijp_to_ssp)} StopPointInJourneyPattern entries")
     print(f"  {sum(len(v) for v in tt.dated_journeys_by_sj().values())} DatedServiceJourney entries")
 
-    train_brands: List[str] = []
+    # Resolve originator: CLI override > ParticipantRef in NeTEx file
+    participant = participant_ref(tt.shared_root) if tt.shared_root is not None else ""
+    resolved_originator = resolve_originator(participant, originator)
+    print(f"  Originator: {resolved_originator!r} (ParticipantRef={participant!r})")
+
     meta_list, trains, pors = build_trains_and_pors(
         tt, quay_index, resolved_originator,
         brand_map=brand_map,
         service_mode_map=service_mode_map,
-        train_brands_out=train_brands,
     )
 
-    # Build a custom EDIFACT handler that emits 2_PRD/PDT (service brand) after
-    # each PRD.  The standard CsvHandlerToEdifactCollector doesn't implement
-    # this, so we subclass it and intercept Train rows to strip the extra
-    # service_brand column before calling Train(**row), then write the PDT.
-    from merits.edifact.collector_in_memory import CollectorInMemory as _CIM
-    from merits.skdupd.csv_handler_to_edifact_collector import CsvHandlerToEdifactCollector as _BaseHandler
-    from merits.csvs_zip.csv_reader import CsvReader as _CsvReader
-
-    class _BrandedHandler(_BaseHandler):
-        """Extends the standard handler to emit 2_PRD/PDT service_brand after PRD."""
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self._pending_brand = ""
-
-        def handle_row(self, csv_file_name: str, row: dict) -> None:
-            if csv_file_name == definition.TRAIN_FILE_NAME:
-                self._pending_brand = row.get("service_brand", "")
-                train_row = {k: v for k, v in row.items() if k != "service_brand"}
-                obj = Train(**train_row)
-                self._handle_train(obj)
-                self._pending_brand = ""
-            else:
-                super().handle_row(csv_file_name, row)
-
-        def _handle_train(self, train: Train) -> None:
-            self._por_list.clear()
-            if self.prd_for_every_pop or train.service_number != self._last_service_number:
-                self._write(
-                    path="2_PRD/PRD",
-                    data={
-                        "service_number": train.service_number,
-                        "reservation": train.reservation,
-                        "tariff": train.tariff,
-                        "service_mode": train.service_mode,
-                        "service_name": train.service_name,
-                        "service_provider": train.service_provider,
-                        "reservation_company": train.reservation_company,
-                    },
-                )
-                # Inject PDT with service brand BEFORE entering 4_POP context.
-                if self._pending_brand:
-                    self._write(path="2_PRD/PDT", data={"service_brand": self._pending_brand})
-                if train.second_service_number:
-                    self._write(
-                        path="2_PRD/RFR",
-                        data={"second_service_number": train.second_service_number},
-                        add_defaults_for=["reference_function_code"],
-                    )
-                self._last_service_number = train.service_number
-            self._write(
-                path="2_PRD/4_POP/POP",
-                data={
-                    "first_day_last_day": train.first_day + "/" + train.last_day,
-                    "days": train.operation_days,
-                },
-                add_defaults_for=["period_qualifier"],
-            )
-
-    def _train_rows_with_brand():
-        from merits.csvs_zip.rows import RowsInMemory
-        from dataclasses import fields as dc_fields, asdict
-        headers = [f.name for f in dc_fields(Train)] + ["service_brand"]
-        data = [
-            {**{k: ("" if v is None else str(v)) for k, v in asdict(t).items()},
-             "service_brand": b}
-            for t, b in zip(trains, train_brands)
-        ]
-        return RowsInMemory(data=data, headers=headers)
-
-    _collector = _CIM()
-    _handler = _BrandedHandler(edifact_collector=_collector, definition=definition.edifact_definition)
-    _csv_def = definition.get_csv_hierarchy()
-    # Extend the Train table schema so check_field_names accepts service_brand.
-    _train_table = _csv_def.csv_file_name_2_table[definition.TRAIN_FILE_NAME]
-    _train_table.field_name_list = list(_train_table.field_name_list) + ["service_brand"]
-    _reader = _CsvReader(csv_hierarchy=_csv_def, csv_handler=_handler)
-    _reader.read({
+    converter = CsvsToEdifact()
+    converter.load({
         definition.META_FILE_NAME:     _rows(meta_list, Meta),
-        definition.TRAIN_FILE_NAME:    _train_rows_with_brand(),
+        definition.TRAIN_FILE_NAME:    _rows(trains, Train),
         definition.POR_FILE_NAME:      _rows(pors, Por),
         definition.RELATION_FILE_NAME: _rows([], Relation),
         definition.ODI_FILE_NAME:      _rows([], Odi),
     })
-    edifact_text = _collector.get()
+    edifact_text = converter.get()
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
     output_file.write_text(edifact_text, encoding="utf-8")
@@ -738,17 +647,17 @@ def convert(
 def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="netex2skdupd",
-        description="Convert NeTEx timetable + NAP station file to SKDUPD EDIFACT (Mode 1).",
+        description="Convert NeTEx timetable + station file to SKDUPD EDIFACT.",
     )
     parser.add_argument(
         "--timetable",
         required=True,
-        help="Path to timetable NeTEx ZIP (e.g. Source/flb_2024-12-05T14_37_53.106.zip).",
+        help="Path to timetable NeTEx ZIP.",
     )
     parser.add_argument(
         "--stations",
         required=True,
-        help="Path to station NeTEx ZIP from NAP (e.g. Source/RailStations_latest.zip).",
+        help="Path to station NeTEx ZIP.",
     )
     parser.add_argument(
         "--output",
@@ -756,7 +665,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--originator",
-        default="NSR",
+        default=None,
+        help="Override EDIFACT ORG/3036 RICS code. Auto-derived from ParticipantRef when omitted.",
     )
     return parser
 
