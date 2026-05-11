@@ -115,14 +115,15 @@ def _load_mct_csv(csv_path: Path) -> Dict[str, int]:
 # EDIFACT-specific helpers (only what is unique to TSDUPD lives here)
 # ---------------------------------------------------------------------------
 
-# UN/EDIFACT code list 3227 — location function qualifier
+# MERITS/PRIFIS code list 3227 — location function qualifier
+# Source: merits-prifis_code-lists-version 26.1, tag 3227
 _MODE_TO_FUNCTION_CODE: Dict[str, str] = {
-    "rail":      "29",  # Station/terminal
+    "rail":      "29",   # Railway station
     "metro":     "29",
     "tram":      "29",
-    "water":     "50",  # Port/ferry terminal
-    "bus":       "21",  # Bus station
-    "coach":     "21",
+    "water":     "255",  # Ferry terminal
+    "bus":       "254",  # Bus station
+    "coach":     "254",
     "telecabin": "29",
     "funicular": "29",
 }

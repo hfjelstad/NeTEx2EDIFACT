@@ -69,7 +69,7 @@ def _dispatch_tsdupd(args: argparse.Namespace) -> None:
         # NeTEx XML → TSDUPD EDIFACT (direct)
         from Converter.TSDUPD.netex2tsdupd import convert
         convert(
-            xml_path=Path(args.input),
+            input_dir=Path(args.input),
             output_file=Path(args.output),
             originator=args.originator,
         )

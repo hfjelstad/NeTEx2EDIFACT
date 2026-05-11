@@ -103,13 +103,26 @@ def to_ascii(text: str) -> str:
     return decomposed.encode("ascii", "ignore").decode("ascii")
 
 
+# Synthetic/provisional UIC ranges not covered by the standard 2-digit prefix.
+# Keys are the leading 4 digits of a 9-digit code; values are ISO 3166-1 α-2.
+_SYNTHETIC_UIC_PREFIX_COUNTRY = {
+    "9976": "NO",   # Synthetic Norwegian RRB/bus stops (997600001+)
+}
+
+
 def country_from_uic(uic: str) -> str:
     """ISO 3166-1 α-2 country code derived from a 9-digit UIC station code.
 
     The UIC country code lives in digits 2-3 of the 9-digit form
     (the leading two digits are a check/format prefix, typically '00').
+    Synthetic provisional ranges (e.g. 9976xxxxx for Norwegian RRB stops)
+    are handled via _SYNTHETIC_UIC_PREFIX_COUNTRY.
     Returns '' if no mapping is known.
     """
+    if len(uic) >= 4:
+        synthetic = _SYNTHETIC_UIC_PREFIX_COUNTRY.get(uic[:4])
+        if synthetic:
+            return synthetic
     if len(uic) >= 4 and uic.startswith("00"):
         cc = uic[2:4]
     elif len(uic) >= 2:

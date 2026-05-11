@@ -1,0 +1,289 @@
+<?xml version='1.0' encoding='utf-8'?>
+<PublicationDelivery xmlns="http://www.netex.org.uk/netex" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.15:NO-NeTEx-stops:1.5">
+  <dataObjects>
+    <SiteFrame modification="new" version="1" id="NSR:SiteFrame:F4-bus-stops">
+      <stopPlaces>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600001">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600001</PrivateCode>
+          </privateCodes>
+          <Name>Arna - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>5.467192</Longitude>
+              <Latitude>60.421105</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600002">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600002</PrivateCode>
+          </privateCodes>
+          <Name>Asker - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>10.433062</Longitude>
+              <Latitude>59.832076</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600003">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600003</PrivateCode>
+          </privateCodes>
+          <Name>Bergen - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>5.334136</Longitude>
+              <Latitude>60.388761</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600004">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600004</PrivateCode>
+          </privateCodes>
+          <Name>Dale - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>5.815459</Longitude>
+              <Latitude>60.586395</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600005">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600005</PrivateCode>
+          </privateCodes>
+          <Name>Drammen - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>10.203033</Longitude>
+              <Latitude>59.739545</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600006">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600006</PrivateCode>
+          </privateCodes>
+          <Name>Flå - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>9.472210</Longitude>
+              <Latitude>60.432190</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600007">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600007</PrivateCode>
+          </privateCodes>
+          <Name>Geilo - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>8.205862</Longitude>
+              <Latitude>60.534301</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600008">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600008</PrivateCode>
+          </privateCodes>
+          <Name>Gol - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>8.968910</Longitude>
+              <Latitude>60.698970</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600009">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600009</PrivateCode>
+          </privateCodes>
+          <Name>Haugastøl - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>7.870233</Longitude>
+              <Latitude>60.511272</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600010">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600010</PrivateCode>
+          </privateCodes>
+          <Name>Hokksund - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>9.911250</Longitude>
+              <Latitude>59.767310</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600011">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600011</PrivateCode>
+          </privateCodes>
+          <Name>Hønefoss - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>10.249947</Longitude>
+              <Latitude>60.169219</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600012">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600012</PrivateCode>
+          </privateCodes>
+          <Name>Myrdal - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>7.114055</Longitude>
+              <Latitude>60.863140</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600013">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600013</PrivateCode>
+          </privateCodes>
+          <Name>Nesbyen - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>9.112371</Longitude>
+              <Latitude>60.577037</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600014">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600014</PrivateCode>
+          </privateCodes>
+          <Name>Nittedal - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>10.864103</Longitude>
+              <Latitude>60.057918</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600015">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600015</PrivateCode>
+          </privateCodes>
+          <Name>Oslo S - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>10.757354</Longitude>
+              <Latitude>59.909121</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600016">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600016</PrivateCode>
+          </privateCodes>
+          <Name>Sandvika - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>10.523988</Longitude>
+              <Latitude>59.892777</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600017">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600017</PrivateCode>
+          </privateCodes>
+          <Name>Ustaoset - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>8.040990</Longitude>
+              <Latitude>60.498870</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600018">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600018</PrivateCode>
+          </privateCodes>
+          <Name>Vikersund - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>9.997946</Longitude>
+              <Latitude>59.968463</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600019">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600019</PrivateCode>
+          </privateCodes>
+          <Name>Voss - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>6.411578</Longitude>
+              <Latitude>60.628838</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+        <StopPlace modification="new" version="1" id="SYNTHETIC:StopPlace:997600020">
+          <privateCodes>
+            <PrivateCode type="uicCode">997600020</PrivateCode>
+          </privateCodes>
+          <Name>Ål - BUS</Name>
+          <Centroid>
+            <Location>
+              <Longitude>8.561280</Longitude>
+              <Latitude>60.626530</Latitude>
+            </Location>
+          </Centroid>
+          <TransportMode>bus</TransportMode>
+          <StopPlaceType>onstreetBus</StopPlaceType>
+        </StopPlace>
+      </stopPlaces>
+    </SiteFrame>
+  </dataObjects>
+</PublicationDelivery>

@@ -1,0 +1,1741 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- SignatureRail NeTEx Integrator version=2.0.3.19 DatabaseServer=NO@TP -->
+<PublicationDelivery xmlns="http://www.netex.org.uk/netex" xmlns:gis="http://www.opengis.net/gml/3.2" xmlns:siri="http://www.siri.org.uk/siri" version="1.15:NO-NeTEx-networktimetable:1.5">
+  <!-- Extract made from Folder(s) R26 between 2026-04-20-Mon and 2026-09-16-Wed BatchID=VYG/E2-VYG Extract=4949 Time=2026-04-20T08:30:51-->
+  <!-- => Export end date 2026-08-22-Sat-->
+  <PublicationTimestamp>2026-04-20T08:23:10</PublicationTimestamp>
+  <ParticipantRef>NSB</ParticipantRef>
+  <Description>RX20 : Oslo S-Halden-Göteborg : v2.0.3.19, VYG/E2-VYG</Description>
+  <dataObjects>
+    <CompositeFrame created="2026-04-20T08:30:51" version="4949" id="VYG:CompositeFrame:Line-RX20">
+      <!-- ====================== Validity ====================== -->
+      <validityConditions>
+        <AvailabilityCondition version="4949" id="VYG:AvailabilityCondition:Line-RX20">
+          <FromDate>2026-04-20T00:00:00</FromDate>
+          <ToDate>2026-09-16T00:00:00</ToDate>
+        </AvailabilityCondition>
+      </validityConditions>
+      <!-- ====================== CodeSpaces ====================== -->
+      <codespaces>
+        <Codespace id="vyg">
+          <Xmlns>VYG</Xmlns>
+          <XmlnsUrl>http://www.rutebanken.org/ns/vyg</XmlnsUrl>
+        </Codespace>
+        <Codespace id="nsr">
+          <Xmlns>NSR</Xmlns>
+          <XmlnsUrl>http://www.rutebanken.org/ns/nsr</XmlnsUrl>
+        </Codespace>
+        <Codespace id="pen">
+          <Xmlns>PEN</Xmlns>
+          <XmlnsUrl>http://www.rutebanken.org/ns/pen</XmlnsUrl>
+        </Codespace>
+      </codespaces>
+      <!-- ====================== Defaults ====================== -->
+      <FrameDefaults>
+        <DefaultLocale>
+          <TimeZone>Europe/Oslo</TimeZone>
+          <DefaultLanguage>no</DefaultLanguage>
+        </DefaultLocale>
+        <DefaultLocationSystem>4326</DefaultLocationSystem>
+      </FrameDefaults>
+      <frames>
+        <!-- ====================== Line Service Frame ====================== -->
+        <ServiceFrame version="4949" id="VYG:ServiceFrame:RX20">
+          <routes>
+            <Route version="0" id="VYG:Route:RX20-F">
+              <Name>OSL - SUD</Name>
+              <ShortName>OSL-SUD</ShortName>
+              <LineRef ref="VYG:Line:RX20" version="0" />
+              <pointsInSequence>
+                <PointOnRoute order="1" version="0" id="VYG:PointOnRoute:RX20-F-1_OSL">
+                  <RoutePointRef ref="VYG:RoutePoint:OSL" />
+                </PointOnRoute>
+                <PointOnRoute order="2" version="0" id="VYG:PointOnRoute:RX20-F-2_SKI">
+                  <RoutePointRef ref="VYG:RoutePoint:SKI" />
+                </PointOnRoute>
+                <PointOnRoute order="3" version="0" id="VYG:PointOnRoute:RX20-F-3_MOS">
+                  <RoutePointRef ref="VYG:RoutePoint:MOS" />
+                </PointOnRoute>
+                <PointOnRoute order="4" version="0" id="VYG:PointOnRoute:RX20-F-4_FRE">
+                  <RoutePointRef ref="VYG:RoutePoint:FRE" />
+                </PointOnRoute>
+              </pointsInSequence>
+              <InverseRouteRef ref="VYG:Route:RX20-R" version="0" />
+            </Route>
+            <Route version="0" id="VYG:Route:RX20-R">
+              <Name>SUD - OSL</Name>
+              <ShortName>SUD-OSL</ShortName>
+              <LineRef ref="VYG:Line:RX20" version="0" />
+              <pointsInSequence>
+                <PointOnRoute order="1" version="0" id="VYG:PointOnRoute:RX20-R-1_FRE">
+                  <RoutePointRef ref="VYG:RoutePoint:FRE" />
+                </PointOnRoute>
+                <PointOnRoute order="2" version="0" id="VYG:PointOnRoute:RX20-R-2_MOS">
+                  <RoutePointRef ref="VYG:RoutePoint:MOS" />
+                </PointOnRoute>
+                <PointOnRoute order="3" version="0" id="VYG:PointOnRoute:RX20-R-3_SKI">
+                  <RoutePointRef ref="VYG:RoutePoint:SKI" />
+                </PointOnRoute>
+                <PointOnRoute order="4" version="0" id="VYG:PointOnRoute:RX20-R-4_OSL">
+                  <RoutePointRef ref="VYG:RoutePoint:OSL" />
+                </PointOnRoute>
+              </pointsInSequence>
+              <InverseRouteRef ref="VYG:Route:RX20-F" version="0" />
+            </Route>
+          </routes>
+          <lines>
+            <Line version="0" id="VYG:Line:RX20">
+              <Name>Oslo S-Halden-Göteborg</Name>
+              <TransportMode>rail</TransportMode>
+              <PublicCode>RX20</PublicCode>
+              <PrivateCode>RX20</PrivateCode>
+              <OperatorRef ref="VYG:Operator:VY" />
+              <RepresentedByGroupRef ref="VYG:Network:VY" />
+              <Presentation>
+                <Colour>44C8F5</Colour>
+                <TextColour>FFFFFF</TextColour>
+              </Presentation>
+              <AlternativePresentation>
+                <Colour>44C8F5</Colour>
+                <TextColour>FFFFFF</TextColour>
+              </AlternativePresentation>
+            </Line>
+          </lines>
+          <!-- ====================== Journey patterns [6] ====================== -->
+          <journeyPatterns>
+            <JourneyPattern version="0" id="VYG:JourneyPattern:RX20-337">
+              <Name>OSL-FRE</Name>
+              <RouteRef ref="VYG:Route:RX20-F" version="0" />
+              <pointsInSequence>
+                <StopPointInJourneyPattern order="1" version="0" id="VYG:StopPointInJourneyPattern:RX20-337-1">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:OSL-18" />
+                  <ForAlighting>false</ForAlighting>
+                  <DestinationDisplayRef ref="VYG:DestinationDisplay:RX20-14_Fredrikstad" />
+                </StopPointInJourneyPattern>
+                <StopPointInJourneyPattern order="2" version="0" id="VYG:StopPointInJourneyPattern:RX20-337-2">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:SKI-1" />
+                </StopPointInJourneyPattern>
+                <StopPointInJourneyPattern order="3" version="0" id="VYG:StopPointInJourneyPattern:RX20-337-3">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:MOS-1" />
+                </StopPointInJourneyPattern>
+                <StopPointInJourneyPattern order="4" version="0" id="VYG:StopPointInJourneyPattern:RX20-337-4">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+                  <ForBoarding>false</ForBoarding>
+                </StopPointInJourneyPattern>
+              </pointsInSequence>
+            </JourneyPattern>
+            <JourneyPattern version="0" id="VYG:JourneyPattern:RX20-338">
+              <Name>OSL-FRE</Name>
+              <RouteRef ref="VYG:Route:RX20-F" version="0" />
+              <pointsInSequence>
+                <StopPointInJourneyPattern order="1" version="0" id="VYG:StopPointInJourneyPattern:RX20-338-1">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:OSL-19" />
+                  <ForAlighting>false</ForAlighting>
+                  <DestinationDisplayRef ref="VYG:DestinationDisplay:RX20-14_Fredrikstad" />
+                </StopPointInJourneyPattern>
+                <StopPointInJourneyPattern order="2" version="0" id="VYG:StopPointInJourneyPattern:RX20-338-2">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:SKI-1" />
+                </StopPointInJourneyPattern>
+                <StopPointInJourneyPattern order="3" version="0" id="VYG:StopPointInJourneyPattern:RX20-338-3">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:MOS-1" />
+                </StopPointInJourneyPattern>
+                <StopPointInJourneyPattern order="4" version="0" id="VYG:StopPointInJourneyPattern:RX20-338-4">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+                  <ForBoarding>false</ForBoarding>
+                </StopPointInJourneyPattern>
+              </pointsInSequence>
+            </JourneyPattern>
+            <JourneyPattern version="0" id="VYG:JourneyPattern:RX20-341">
+              <Name>FRE-OSL</Name>
+              <RouteRef ref="VYG:Route:RX20-R" version="0" />
+              <pointsInSequence>
+                <StopPointInJourneyPattern order="1" version="0" id="VYG:StopPointInJourneyPattern:RX20-341-1">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+                  <ForAlighting>false</ForAlighting>
+                  <DestinationDisplayRef ref="VYG:DestinationDisplay:RX20-1_OsloS" />
+                </StopPointInJourneyPattern>
+                <StopPointInJourneyPattern order="2" version="0" id="VYG:StopPointInJourneyPattern:RX20-341-2">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:MOS-1" />
+                </StopPointInJourneyPattern>
+                <StopPointInJourneyPattern order="3" version="0" id="VYG:StopPointInJourneyPattern:RX20-341-3">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:SKI-3" />
+                </StopPointInJourneyPattern>
+                <StopPointInJourneyPattern order="4" version="0" id="VYG:StopPointInJourneyPattern:RX20-341-4">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:OSL-19" />
+                  <ForBoarding>false</ForBoarding>
+                </StopPointInJourneyPattern>
+              </pointsInSequence>
+            </JourneyPattern>
+            <JourneyPattern version="0" id="VYG:JourneyPattern:RX20-342">
+              <Name>FRE-OSL</Name>
+              <RouteRef ref="VYG:Route:RX20-R" version="0" />
+              <pointsInSequence>
+                <StopPointInJourneyPattern order="1" version="0" id="VYG:StopPointInJourneyPattern:RX20-342-1">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+                  <ForAlighting>false</ForAlighting>
+                  <DestinationDisplayRef ref="VYG:DestinationDisplay:RX20-1_OsloS" />
+                </StopPointInJourneyPattern>
+                <StopPointInJourneyPattern order="2" version="0" id="VYG:StopPointInJourneyPattern:RX20-342-2">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:MOS-1" />
+                </StopPointInJourneyPattern>
+                <StopPointInJourneyPattern order="3" version="0" id="VYG:StopPointInJourneyPattern:RX20-342-3">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:SKI-3" />
+                </StopPointInJourneyPattern>
+                <StopPointInJourneyPattern order="4" version="0" id="VYG:StopPointInJourneyPattern:RX20-342-4">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:OSL-17" />
+                  <ForBoarding>false</ForBoarding>
+                </StopPointInJourneyPattern>
+              </pointsInSequence>
+            </JourneyPattern>
+            <JourneyPattern version="0" id="VYG:JourneyPattern:RX20-343">
+              <Name>MOS-OSL</Name>
+              <RouteRef ref="VYG:Route:RX20-R" version="0" />
+              <pointsInSequence>
+                <StopPointInJourneyPattern order="1" version="0" id="VYG:StopPointInJourneyPattern:RX20-343-1">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:MOS-1" />
+                  <ForAlighting>false</ForAlighting>
+                  <DestinationDisplayRef ref="VYG:DestinationDisplay:RX20-1_OsloS" />
+                </StopPointInJourneyPattern>
+                <StopPointInJourneyPattern order="2" version="0" id="VYG:StopPointInJourneyPattern:RX20-343-2">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:SKI-3" />
+                </StopPointInJourneyPattern>
+                <StopPointInJourneyPattern order="3" version="0" id="VYG:StopPointInJourneyPattern:RX20-343-3">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:OSL-19" />
+                  <ForBoarding>false</ForBoarding>
+                </StopPointInJourneyPattern>
+              </pointsInSequence>
+            </JourneyPattern>
+            <JourneyPattern version="0" id="VYG:JourneyPattern:RX20-345">
+              <Name>FRE-MOS</Name>
+              <RouteRef ref="VYG:Route:RX20-R" version="0" />
+              <pointsInSequence>
+                <StopPointInJourneyPattern order="1" version="0" id="VYG:StopPointInJourneyPattern:RX20-345-1">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+                  <ForAlighting>false</ForAlighting>
+                  <DestinationDisplayRef ref="VYG:DestinationDisplay:RX20-16_Moss" />
+                </StopPointInJourneyPattern>
+                <StopPointInJourneyPattern order="2" version="0" id="VYG:StopPointInJourneyPattern:RX20-345-2">
+                  <ScheduledStopPointRef ref="VYG:ScheduledStopPoint:MOS-1" />
+                  <ForBoarding>false</ForBoarding>
+                </StopPointInJourneyPattern>
+              </pointsInSequence>
+            </JourneyPattern>
+          </journeyPatterns>
+        </ServiceFrame>
+        <!-- ====================== Line Timetable Frame ====================== -->
+        <TimetableFrame version="4949" id="VYG:TimetableFrame:RX20">
+          <vehicleJourneys>
+            <!-- ====================== Service Journeys [9] ====================== -->
+            <!--155:LOD[155]-FRE[155]  59 days starting 20-Apr-2026-->
+            <ServiceJourney version="9" id="VYG:ServiceJourney:155-LOD_445013-R" created="2025-08-18T12:04:03" changed="2026-04-15T11:43:32" dataSourceRef="NO:R26/-1">
+              <keyList>
+                <KeyValue>
+                  <Key>OriginalTag</Key>
+                  <Value>RX20</Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>FacilitySummary</Key>
+                  <Value>selfService; businessClass; suitableForPushchairs suitableForWheelchairs; mobilePhoneFreeZone animalsAllowed; publicWifi; reservationsRecommended; </Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>ContentCheck</Key>
+                  <Value>35798825</Value>
+                </KeyValue>
+              </keyList>
+              <Name>155</Name>
+              <Description>155 [14:24 : LOD-FRE]</Description>
+              <PrivateCode>155</PrivateCode>
+              <TransportMode>rail</TransportMode>
+              <TransportSubmode>
+                <RailSubmode>longDistance</RailSubmode>
+              </TransportSubmode>
+              <JourneyPatternRef ref="VYG:JourneyPattern:RX20-337" version="0" />
+              <OperatorRef ref="VYG:Operator:VY" />
+              <LineRef ref="VYG:Line:RX20" version="0" />
+              <passingTimes>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:155-LOD_445013_1_OSL">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-337-1" version="0" />
+                  <DepartureTime>14:39:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:155-LOD_445013_2_SKI">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-337-2" version="0" />
+                  <ArrivalTime>14:50:00</ArrivalTime>
+                  <DepartureTime>14:51:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:155-LOD_445013_3_MOS">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-337-3" version="0" />
+                  <ArrivalTime>15:15:00</ArrivalTime>
+                  <DepartureTime>15:16:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:155-LOD_445013_4_FRE">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-337-4" version="0" />
+                  <ArrivalTime>15:39:00</ArrivalTime>
+                </TimetabledPassingTime>
+              </passingTimes>
+              <parts>
+                <JourneyPart version="0" id="VYG:JourneyPart:155-LOD_445013_1">
+                  <Description>OSL - FRE</Description>
+                  <MainPartRef ref="VYG:JourneyPart:155-LOD_445013_1" version="0" />
+                  <TrainNumberRef ref="VYG:TrainNumber:RX20-1" version="0" />
+                  <FromStopPointRef ref="VYG:ScheduledStopPoint:OSL-18" />
+                  <ToStopPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+                  <StartTime>14:39:00</StartTime>
+                  <EndTime>15:39:00</EndTime>
+                  <facilities>
+                    <ServiceFacilitySetRef ref="VYG:ServiceFacilitySet:RX20-45" version="0" />
+                  </facilities>
+                </JourneyPart>
+              </parts>
+            </ServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-04-20" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-20-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-04-21" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-21-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-04-22" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-22-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-04-23" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-23-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-04-24" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-24-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-04-27" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-27-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-04-28" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-28-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-04-29" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-29-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-04-30" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-30-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="6" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-01" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-13F6EC61" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-01-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-04" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-04-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-05" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-05-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-06" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-06-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-07" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-07-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-08" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-08-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-11" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-11-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-12" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-12-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-13" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-13-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="6" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-14" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-13F6EC61" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-14-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-18" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-18-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-19" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-19-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-20" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-20-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-21" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-21-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-22" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-22-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="6" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-25" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-13F6EC61" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-25-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-26" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-26-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-27" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-27-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-28" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-28-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-29" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-29-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-01" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-01-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-02" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-02-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-03" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-03-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-04" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-04-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="7" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-05" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-05-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="8" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-08" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-D44D00DD" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-08-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="8" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-09" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-D44D00DD" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-09-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="8" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-10" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-D44D00DD" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-10-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="8" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-11" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-D44D00DD" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-11-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="8" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-12" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-D44D00DD" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-12-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-15" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-15-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-16" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-16-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-17" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-17-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-18" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-18-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-19" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-19-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-22" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-22-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-23" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-23-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-24" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-24-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-25" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-25-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-26" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-26-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-08-10" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-10-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-08-11" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-11-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-08-12" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-12-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-08-13" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-13-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-08-14" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-14-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-08-17" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-17-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:155_OSL-FRE_26-08-18" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-18-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:155_OSL-FRE_26-08-19" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-19-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:155_OSL-FRE_26-08-20" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-20-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:155_OSL-FRE_26-08-21" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_445013-26C18E87" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_445013-R" version="9" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-21-Fri" />
+            </DatedServiceJourney>
+            <!--155:LOD[155]-FRE[155]  10 days starting 26-Apr-2026-->
+            <ServiceJourney version="6" id="VYG:ServiceJourney:155-LOD_443198-R" created="2025-08-18T08:09:04" changed="2026-04-15T14:10:42" dataSourceRef="NO:R26/-1">
+              <keyList>
+                <KeyValue>
+                  <Key>OriginalTag</Key>
+                  <Value>RX20</Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>FacilitySummary</Key>
+                  <Value>selfService; businessClass; suitableForPushchairs suitableForWheelchairs; mobilePhoneFreeZone animalsAllowed; publicWifi; reservationsRecommended; </Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>ContentCheck</Key>
+                  <Value>8904BD0E</Value>
+                </KeyValue>
+              </keyList>
+              <Name>155</Name>
+              <Description>155 [14:24 : LOD-FRE]</Description>
+              <PrivateCode>155</PrivateCode>
+              <TransportMode>rail</TransportMode>
+              <TransportSubmode>
+                <RailSubmode>longDistance</RailSubmode>
+              </TransportSubmode>
+              <JourneyPatternRef ref="VYG:JourneyPattern:RX20-338" version="0" />
+              <OperatorRef ref="VYG:Operator:VY" />
+              <LineRef ref="VYG:Line:RX20" version="0" />
+              <passingTimes>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:155-LOD_443198_1_OSL">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-338-1" version="0" />
+                  <DepartureTime>14:39:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:155-LOD_443198_2_SKI">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-338-2" version="0" />
+                  <ArrivalTime>14:50:00</ArrivalTime>
+                  <DepartureTime>14:51:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:155-LOD_443198_3_MOS">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-338-3" version="0" />
+                  <ArrivalTime>15:15:00</ArrivalTime>
+                  <DepartureTime>15:16:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:155-LOD_443198_4_FRE">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-338-4" version="0" />
+                  <ArrivalTime>15:39:00</ArrivalTime>
+                </TimetabledPassingTime>
+              </passingTimes>
+              <parts>
+                <JourneyPart version="0" id="VYG:JourneyPart:155-LOD_443198_1">
+                  <Description>OSL - FRE</Description>
+                  <MainPartRef ref="VYG:JourneyPart:155-LOD_443198_1" version="0" />
+                  <TrainNumberRef ref="VYG:TrainNumber:RX20-1" version="0" />
+                  <FromStopPointRef ref="VYG:ScheduledStopPoint:OSL-19" />
+                  <ToStopPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+                  <StartTime>14:39:00</StartTime>
+                  <EndTime>15:39:00</EndTime>
+                  <facilities>
+                    <ServiceFacilitySetRef ref="VYG:ServiceFacilitySet:RX20-45" version="0" />
+                  </facilities>
+                </JourneyPart>
+              </parts>
+            </ServiceJourney>
+            <DatedServiceJourney version="6" id="VYG:DatedServiceJourney:155_OSL-FRE_26-04-26" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_443198-13F6EC61" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_443198-R" version="6" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-26-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="6" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-03" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_443198-13F6EC61" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_443198-R" version="6" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-03-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="6" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-10" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_443198-13F6EC61" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_443198-R" version="6" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-10-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="6" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-17" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_443198-13F6EC61" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_443198-R" version="6" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-17-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="9" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-24" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_443198-84225773" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_443198-R" version="6" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-24-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="6" id="VYG:DatedServiceJourney:155_OSL-FRE_26-05-31" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_443198-13F6EC61" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_443198-R" version="6" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-31-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="8" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-07" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_443198-13F6EC61" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_443198-R" version="6" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-07-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="5" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-14" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_443198-13F6EC61" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_443198-R" version="6" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-14-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-21" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_443198-13F6EC61" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_443198-R" version="6" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-21-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-08-16" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:155-LOD_443198-13F6EC61" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_443198-R" version="6" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-16-Sun" />
+            </DatedServiceJourney>
+            <!--155:LOD[155]-FRE[155] [cancelled] 1 days starting 28-Jun-2026-->
+            <ServiceJourney version="3" id="VYG:ServiceJourney:155-LOD_548101-R" created="2026-02-24T07:30:57" changed="2026-04-15T14:10:42" dataSourceRef="NO:R26/-21">
+              <keyList>
+                <KeyValue>
+                  <Key>OriginalTag</Key>
+                  <Value>RX20</Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>FacilitySummary</Key>
+                  <Value>selfService; businessClass economyClass; suitableForPushchairs suitableForWheelchairs; mobilePhoneFreeZone animalsAllowed; publicWifi; reservationsRecommended; </Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>ContentCheck</Key>
+                  <Value>B17C635E</Value>
+                </KeyValue>
+              </keyList>
+              <Name>155</Name>
+              <Description>155 [14:24 : LOD-FRE]</Description>
+              <PrivateCode>155</PrivateCode>
+              <TransportMode>rail</TransportMode>
+              <TransportSubmode>
+                <RailSubmode>longDistance</RailSubmode>
+              </TransportSubmode>
+              <JourneyPatternRef ref="VYG:JourneyPattern:RX20-337" version="0" />
+              <OperatorRef ref="VYG:Operator:VY" />
+              <LineRef ref="VYG:Line:RX20" version="0" />
+              <passingTimes>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:155-LOD_548101_1_OSL">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-337-1" version="0" />
+                  <DepartureTime>14:39:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:155-LOD_548101_2_SKI">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-337-2" version="0" />
+                  <ArrivalTime>14:50:00</ArrivalTime>
+                  <DepartureTime>14:51:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:155-LOD_548101_3_MOS">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-337-3" version="0" />
+                  <ArrivalTime>15:15:00</ArrivalTime>
+                  <DepartureTime>15:16:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:155-LOD_548101_4_FRE">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-337-4" version="0" />
+                  <ArrivalTime>15:39:00</ArrivalTime>
+                </TimetabledPassingTime>
+              </passingTimes>
+              <parts>
+                <JourneyPart version="0" id="VYG:JourneyPart:155-LOD_548101_1">
+                  <Description>OSL - FRE</Description>
+                  <MainPartRef ref="VYG:JourneyPart:155-LOD_548101_1" version="0" />
+                  <TrainNumberRef ref="VYG:TrainNumber:RX20-1" version="0" />
+                  <FromStopPointRef ref="VYG:ScheduledStopPoint:OSL-18" />
+                  <ToStopPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+                  <StartTime>14:39:00</StartTime>
+                  <EndTime>15:39:00</EndTime>
+                  <facilities>
+                    <ServiceFacilitySetRef ref="VYG:ServiceFacilitySet:RX20-5" version="0" />
+                  </facilities>
+                </JourneyPart>
+              </parts>
+            </ServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:155_OSL-FRE_26-06-28" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <ServiceAlteration>cancellation</ServiceAlteration>
+              <ServiceJourneyRef ref="VYG:ServiceJourney:155-LOD_548101-R" version="3" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-28-Sun" />
+            </DatedServiceJourney>
+            <!--156:FRE[156]-OSL[156]  51 days starting 20-Apr-2026-->
+            <ServiceJourney version="0" id="VYG:ServiceJourney:156_443208-R" created="2025-08-18T08:09:04" dataSourceRef="NO:R26/-1">
+              <keyList>
+                <KeyValue>
+                  <Key>OriginalTag</Key>
+                  <Value>RX20</Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>FacilitySummary</Key>
+                  <Value>selfService; businessClass; suitableForPushchairs suitableForWheelchairs; mobilePhoneFreeZone animalsAllowed; publicWifi; reservationsRecommended; </Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>ContentCheck</Key>
+                  <Value>58960FD8</Value>
+                </KeyValue>
+              </keyList>
+              <Name>156</Name>
+              <Description>156 [16:12 : FRE-OSL]</Description>
+              <PrivateCode>156</PrivateCode>
+              <TransportMode>rail</TransportMode>
+              <TransportSubmode>
+                <RailSubmode>longDistance</RailSubmode>
+              </TransportSubmode>
+              <JourneyPatternRef ref="VYG:JourneyPattern:RX20-341" version="0" />
+              <OperatorRef ref="VYG:Operator:VY" />
+              <LineRef ref="VYG:Line:RX20" version="0" />
+              <passingTimes>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156_443208_1_FRE">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-341-1" version="0" />
+                  <DepartureTime>16:12:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156_443208_2_MOS">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-341-2" version="0" />
+                  <ArrivalTime>16:34:00</ArrivalTime>
+                  <DepartureTime>16:35:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156_443208_3_SKI">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-341-3" version="0" />
+                  <ArrivalTime>16:55:00</ArrivalTime>
+                  <DepartureTime>16:56:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156_443208_4_OSL">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-341-4" version="0" />
+                  <ArrivalTime>17:08:00</ArrivalTime>
+                </TimetabledPassingTime>
+              </passingTimes>
+              <parts>
+                <JourneyPart version="0" id="VYG:JourneyPart:156_443208_1">
+                  <Description>FRE - OSL</Description>
+                  <MainPartRef ref="VYG:JourneyPart:156_443208_1" version="0" />
+                  <TrainNumberRef ref="VYG:TrainNumber:RX20-2" version="0" />
+                  <FromStopPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+                  <ToStopPointRef ref="VYG:ScheduledStopPoint:OSL-19" />
+                  <StartTime>16:12:00</StartTime>
+                  <EndTime>17:08:00</EndTime>
+                  <facilities>
+                    <ServiceFacilitySetRef ref="VYG:ServiceFacilitySet:RX20-45" version="0" />
+                  </facilities>
+                </JourneyPart>
+              </parts>
+            </ServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-04-20" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-20-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-04-21" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-21-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-04-22" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-22-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-04-23" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-23-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-04-24" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-24-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-04-27" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-27-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-04-28" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-28-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-04-29" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-29-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-04-30" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-30-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-04" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-04-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-05" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-05-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-06" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-06-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-07" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-07-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-08" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-08-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-11" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-11-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-12" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-12-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-13" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-13-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-18" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-18-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-19" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-19-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-20" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-20-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-21" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-21-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-22" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-22-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-26" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-26-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-27" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-27-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-28" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-28-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-29" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-29-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-01" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-01-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-02" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-02-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-03" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-03-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-04" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-04-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-05" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-05-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-08" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-E4EF4298" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-08-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-09" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-E4EF4298" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-09-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-10" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-E4EF4298" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-10-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-11" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-E4EF4298" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-11-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-12" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-E4EF4298" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-12-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-15" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-15-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-16" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-16-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-17" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-17-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-18" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-18-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-19" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-19-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-22" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-22-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-23" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-23-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-24" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-24-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-25" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-25-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-26" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-26-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-08-17" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-17-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-08-18" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-18-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-08-19" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-19-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-08-20" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-20-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-08-21" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443208-1663CCC2" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443208-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-21-Fri" />
+            </DatedServiceJourney>
+            <!--156:FRE[156]-OSL[156]  13 days starting 26-Apr-2026-->
+            <ServiceJourney version="0" id="VYG:ServiceJourney:156_443207-R" created="2025-08-18T08:09:04" dataSourceRef="NO:R26/-1">
+              <keyList>
+                <KeyValue>
+                  <Key>OriginalTag</Key>
+                  <Value>RX20</Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>FacilitySummary</Key>
+                  <Value>selfService; businessClass; suitableForPushchairs suitableForWheelchairs; mobilePhoneFreeZone animalsAllowed; publicWifi; reservationsRecommended; </Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>ContentCheck</Key>
+                  <Value>7218FDB9</Value>
+                </KeyValue>
+              </keyList>
+              <Name>156</Name>
+              <Description>156 [16:12 : FRE-OSL]</Description>
+              <PrivateCode>156</PrivateCode>
+              <TransportMode>rail</TransportMode>
+              <TransportSubmode>
+                <RailSubmode>longDistance</RailSubmode>
+              </TransportSubmode>
+              <JourneyPatternRef ref="VYG:JourneyPattern:RX20-342" version="0" />
+              <OperatorRef ref="VYG:Operator:VY" />
+              <LineRef ref="VYG:Line:RX20" version="0" />
+              <passingTimes>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156_443207_1_FRE">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-342-1" version="0" />
+                  <DepartureTime>16:12:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156_443207_2_MOS">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-342-2" version="0" />
+                  <ArrivalTime>16:34:00</ArrivalTime>
+                  <DepartureTime>16:35:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156_443207_3_SKI">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-342-3" version="0" />
+                  <ArrivalTime>16:55:00</ArrivalTime>
+                  <DepartureTime>16:56:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156_443207_4_OSL">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-342-4" version="0" />
+                  <ArrivalTime>17:08:00</ArrivalTime>
+                </TimetabledPassingTime>
+              </passingTimes>
+              <parts>
+                <JourneyPart version="0" id="VYG:JourneyPart:156_443207_1">
+                  <Description>FRE - OSL</Description>
+                  <MainPartRef ref="VYG:JourneyPart:156_443207_1" version="0" />
+                  <TrainNumberRef ref="VYG:TrainNumber:RX20-2" version="0" />
+                  <FromStopPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+                  <ToStopPointRef ref="VYG:ScheduledStopPoint:OSL-17" />
+                  <StartTime>16:12:00</StartTime>
+                  <EndTime>17:08:00</EndTime>
+                  <facilities>
+                    <ServiceFacilitySetRef ref="VYG:ServiceFacilitySet:RX20-45" version="0" />
+                  </facilities>
+                </JourneyPart>
+              </parts>
+            </ServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-04-26" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443207-B3664370" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443207-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-04-26-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-01" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443207-B3664370" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443207-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-01-Fri" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-03" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443207-B3664370" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443207-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-03-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-10" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443207-B3664370" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443207-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-10-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-14" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443207-B3664370" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443207-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-14-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-17" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443207-B3664370" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443207-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-17-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="4" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-24" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443207-4C4B1524" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443207-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-24-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-25" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443207-B3664370" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443207-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-25-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-05-31" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443207-B3664370" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443207-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-05-31-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="3" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-07" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443207-B3664370" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443207-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-07-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-14" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443207-B3664370" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443207-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-14-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-21" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443207-B3664370" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443207-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-21-Sun" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="1" id="VYG:DatedServiceJourney:156_FRE-OSL_26-08-16" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156_443207-B3664370" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_443207-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-16-Sun" />
+            </DatedServiceJourney>
+            <!--156:FRE[156]-OSL[156]  5 days starting 10-Aug-2026-->
+            <ServiceJourney version="0" id="VYG:ServiceJourney:156-FRE_571158-R" created="2026-04-14T11:51:56" dataSourceRef="NO:R26/-1">
+              <keyList>
+                <KeyValue>
+                  <Key>OriginalTag</Key>
+                  <Value>RX20</Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>FacilitySummary</Key>
+                  <Value>selfService; businessClass; suitableForPushchairs suitableForWheelchairs; mobilePhoneFreeZone animalsAllowed; publicWifi; reservationsRecommended; </Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>ContentCheck</Key>
+                  <Value>8EDF0A75</Value>
+                </KeyValue>
+              </keyList>
+              <Name>156</Name>
+              <Description>156 [15:52 : FRE-OSL]</Description>
+              <PrivateCode>156</PrivateCode>
+              <TransportMode>rail</TransportMode>
+              <TransportSubmode>
+                <RailSubmode>longDistance</RailSubmode>
+              </TransportSubmode>
+              <JourneyPatternRef ref="VYG:JourneyPattern:RX20-343" version="0" />
+              <OperatorRef ref="VYG:Operator:VY" />
+              <LineRef ref="VYG:Line:RX20" version="0" />
+              <passingTimes>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156-FRE_571158_1_MOS">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-343-1" version="0" />
+                  <DepartureTime>16:35:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156-FRE_571158_2_SKI">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-343-2" version="0" />
+                  <ArrivalTime>16:55:00</ArrivalTime>
+                  <DepartureTime>16:56:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156-FRE_571158_3_OSL">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-343-3" version="0" />
+                  <ArrivalTime>17:08:00</ArrivalTime>
+                </TimetabledPassingTime>
+              </passingTimes>
+              <parts>
+                <JourneyPart version="0" id="VYG:JourneyPart:156-FRE_571158_1">
+                  <Description>MOS - OSL</Description>
+                  <MainPartRef ref="VYG:JourneyPart:156-FRE_571158_1" version="0" />
+                  <TrainNumberRef ref="VYG:TrainNumber:RX20-3" version="0" />
+                  <FromStopPointRef ref="VYG:ScheduledStopPoint:MOS-1" />
+                  <ToStopPointRef ref="VYG:ScheduledStopPoint:OSL-19" />
+                  <StartTime>16:35:00</StartTime>
+                  <EndTime>17:08:00</EndTime>
+                  <facilities>
+                    <ServiceFacilitySetRef ref="VYG:ServiceFacilitySet:RX20-45" version="0" />
+                  </facilities>
+                </JourneyPart>
+              </parts>
+            </ServiceJourney>
+            <DatedServiceJourney version="0" id="VYG:DatedServiceJourney:156_MOS-OSL_26-08-10" created="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156-FRE_571158-74F0A6BA" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156-FRE_571158-R" version="0" />
+              <DatedServiceJourneyRef ref="VYG:DatedServiceJourney:156_FRE-OSL_26-08-10" version="2" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-10-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="0" id="VYG:DatedServiceJourney:156_MOS-OSL_26-08-11" created="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156-FRE_571158-74F0A6BA" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156-FRE_571158-R" version="0" />
+              <DatedServiceJourneyRef ref="VYG:DatedServiceJourney:156_FRE-OSL_26-08-11" version="2" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-11-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="0" id="VYG:DatedServiceJourney:156_MOS-OSL_26-08-12" created="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156-FRE_571158-74F0A6BA" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156-FRE_571158-R" version="0" />
+              <DatedServiceJourneyRef ref="VYG:DatedServiceJourney:156_FRE-OSL_26-08-12" version="2" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-12-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="0" id="VYG:DatedServiceJourney:156_MOS-OSL_26-08-13" created="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156-FRE_571158-74F0A6BA" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156-FRE_571158-R" version="0" />
+              <DatedServiceJourneyRef ref="VYG:DatedServiceJourney:156_FRE-OSL_26-08-13" version="2" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-13-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="0" id="VYG:DatedServiceJourney:156_MOS-OSL_26-08-14" created="0001-01-01T00:00:00" modification="delta">
+              <TrainBlockRef ref="VYG:TrainBlock:156-FRE_571158-74F0A6BA" version="0" />
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156-FRE_571158-R" version="0" />
+              <DatedServiceJourneyRef ref="VYG:DatedServiceJourney:156_FRE-OSL_26-08-14" version="2" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-14-Fri" />
+            </DatedServiceJourney>
+            <!--156:FRE[156]-OSL[156] [cancelled] 1 days starting 28-Jun-2026-->
+            <ServiceJourney version="1" id="VYG:ServiceJourney:156_465735-R" created="2025-10-02T14:02:40" changed="2026-02-24T07:36:07" dataSourceRef="NO:R26/-21">
+              <keyList>
+                <KeyValue>
+                  <Key>OriginalTag</Key>
+                  <Value>RX20</Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>FacilitySummary</Key>
+                  <Value>selfService; businessClass economyClass; suitableForPushchairs suitableForWheelchairs; mobilePhoneFreeZone animalsAllowed; publicWifi; reservationsRecommended; </Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>ContentCheck</Key>
+                  <Value>B215A638</Value>
+                </KeyValue>
+              </keyList>
+              <Name>156</Name>
+              <Description>156 [16:12 : FRE-OSL]</Description>
+              <PrivateCode>156</PrivateCode>
+              <TransportMode>rail</TransportMode>
+              <TransportSubmode>
+                <RailSubmode>longDistance</RailSubmode>
+              </TransportSubmode>
+              <JourneyPatternRef ref="VYG:JourneyPattern:RX20-342" version="0" />
+              <OperatorRef ref="VYG:Operator:VY" />
+              <LineRef ref="VYG:Line:RX20" version="0" />
+              <passingTimes>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156_465735_1_FRE">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-342-1" version="0" />
+                  <DepartureTime>16:12:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156_465735_2_MOS">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-342-2" version="0" />
+                  <ArrivalTime>16:34:00</ArrivalTime>
+                  <DepartureTime>16:35:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156_465735_3_SKI">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-342-3" version="0" />
+                  <ArrivalTime>16:55:00</ArrivalTime>
+                  <DepartureTime>16:56:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156_465735_4_OSL">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-342-4" version="0" />
+                  <ArrivalTime>17:08:00</ArrivalTime>
+                </TimetabledPassingTime>
+              </passingTimes>
+              <parts>
+                <JourneyPart version="0" id="VYG:JourneyPart:156_465735_1">
+                  <Description>FRE - OSL</Description>
+                  <MainPartRef ref="VYG:JourneyPart:156_465735_1" version="0" />
+                  <TrainNumberRef ref="VYG:TrainNumber:RX20-2" version="0" />
+                  <FromStopPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+                  <ToStopPointRef ref="VYG:ScheduledStopPoint:OSL-17" />
+                  <StartTime>16:12:00</StartTime>
+                  <EndTime>17:08:00</EndTime>
+                  <facilities>
+                    <ServiceFacilitySetRef ref="VYG:ServiceFacilitySet:RX20-5" version="0" />
+                  </facilities>
+                </JourneyPart>
+              </parts>
+            </ServiceJourney>
+            <DatedServiceJourney version="0" id="VYG:DatedServiceJourney:156_FRE-OSL_26-06-28" created="2025-10-02T14:02:40" modification="delta">
+              <ServiceAlteration>cancellation</ServiceAlteration>
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_465735-R" version="1" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-06-28-Sun" />
+            </DatedServiceJourney>
+            <!--156:FRE[156]-MOS[156] [cancelled] 5 days starting 10-Aug-2026-->
+            <ServiceJourney version="0" id="VYG:ServiceJourney:156-FRE_571159-R" created="2026-04-14T11:51:56" dataSourceRef="NO:R26/-21">
+              <keyList>
+                <KeyValue>
+                  <Key>OriginalTag</Key>
+                  <Value>RX20</Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>FacilitySummary</Key>
+                  <Value>selfService; businessClass economyClass; suitableForPushchairs suitableForWheelchairs; mobilePhoneFreeZone animalsAllowed; publicWifi; reservationsRecommended; </Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>ContentCheck</Key>
+                  <Value>25B45155</Value>
+                </KeyValue>
+              </keyList>
+              <Name>156</Name>
+              <Description>156 [16:12 : FRE-MOS]</Description>
+              <PrivateCode>156</PrivateCode>
+              <TransportMode>rail</TransportMode>
+              <TransportSubmode>
+                <RailSubmode>longDistance</RailSubmode>
+              </TransportSubmode>
+              <JourneyPatternRef ref="VYG:JourneyPattern:RX20-345" version="0" />
+              <OperatorRef ref="VYG:Operator:VY" />
+              <LineRef ref="VYG:Line:RX20" version="0" />
+              <passingTimes>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156-FRE_571159_1_FRE">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-345-1" version="0" />
+                  <DepartureTime>16:12:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156-FRE_571159_2_MOS">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-345-2" version="0" />
+                  <ArrivalTime>16:34:00</ArrivalTime>
+                </TimetabledPassingTime>
+              </passingTimes>
+              <parts>
+                <JourneyPart version="0" id="VYG:JourneyPart:156-FRE_571159_1">
+                  <Description>FRE - MOS</Description>
+                  <MainPartRef ref="VYG:JourneyPart:156-FRE_571159_1" version="0" />
+                  <TrainNumberRef ref="VYG:TrainNumber:RX20-4" version="0" />
+                  <FromStopPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+                  <ToStopPointRef ref="VYG:ScheduledStopPoint:MOS-1" />
+                  <StartTime>16:12:00</StartTime>
+                  <EndTime>16:34:00</EndTime>
+                  <facilities>
+                    <ServiceFacilitySetRef ref="VYG:ServiceFacilitySet:RX20-5" version="0" />
+                  </facilities>
+                </JourneyPart>
+              </parts>
+            </ServiceJourney>
+            <DatedServiceJourney version="0" id="VYG:DatedServiceJourney:156_FRE-MOS_26-08-10" created="0001-01-01T00:00:00" modification="unchanged">
+              <ServiceAlteration>replaced</ServiceAlteration>
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156-FRE_571159-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-10-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="0" id="VYG:DatedServiceJourney:156_FRE-MOS_26-08-11" created="0001-01-01T00:00:00" modification="unchanged">
+              <ServiceAlteration>replaced</ServiceAlteration>
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156-FRE_571159-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-11-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="0" id="VYG:DatedServiceJourney:156_FRE-MOS_26-08-12" created="0001-01-01T00:00:00" modification="unchanged">
+              <ServiceAlteration>replaced</ServiceAlteration>
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156-FRE_571159-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-12-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="0" id="VYG:DatedServiceJourney:156_FRE-MOS_26-08-13" created="0001-01-01T00:00:00" modification="unchanged">
+              <ServiceAlteration>replaced</ServiceAlteration>
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156-FRE_571159-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-13-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="0" id="VYG:DatedServiceJourney:156_FRE-MOS_26-08-14" created="0001-01-01T00:00:00" modification="unchanged">
+              <ServiceAlteration>replaced</ServiceAlteration>
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156-FRE_571159-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-14-Fri" />
+            </DatedServiceJourney>
+            <!--156:FRE[156]-OSL[156] [original] 5 days starting 10-Aug-2026-->
+            <ServiceJourney version="0" id="VYG:ServiceJourney:156_504200-R" created="2025-12-23T13:03:09" dataSourceRef="NO:R26/-21">
+              <keyList>
+                <KeyValue>
+                  <Key>OriginalTag</Key>
+                  <Value>RX20</Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>FacilitySummary</Key>
+                  <Value>selfService; businessClass economyClass; suitableForPushchairs suitableForWheelchairs; mobilePhoneFreeZone animalsAllowed; publicWifi; reservationsRecommended; </Value>
+                </KeyValue>
+                <KeyValue>
+                  <Key>ContentCheck</Key>
+                  <Value>1639ED69</Value>
+                </KeyValue>
+              </keyList>
+              <Name>156</Name>
+              <Description>156 [16:12 : FRE-OSL]</Description>
+              <PrivateCode>156</PrivateCode>
+              <TransportMode>rail</TransportMode>
+              <TransportSubmode>
+                <RailSubmode>longDistance</RailSubmode>
+              </TransportSubmode>
+              <JourneyPatternRef ref="VYG:JourneyPattern:RX20-342" version="0" />
+              <OperatorRef ref="VYG:Operator:VY" />
+              <LineRef ref="VYG:Line:RX20" version="0" />
+              <passingTimes>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156_504200_1_FRE">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-342-1" version="0" />
+                  <DepartureTime>16:12:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156_504200_2_MOS">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-342-2" version="0" />
+                  <ArrivalTime>16:34:00</ArrivalTime>
+                  <DepartureTime>16:35:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156_504200_3_SKI">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-342-3" version="0" />
+                  <ArrivalTime>16:55:00</ArrivalTime>
+                  <DepartureTime>16:56:00</DepartureTime>
+                </TimetabledPassingTime>
+                <TimetabledPassingTime version="0" id="VYG:TimetabledPassingTime:156_504200_4_OSL">
+                  <StopPointInJourneyPatternRef ref="VYG:StopPointInJourneyPattern:RX20-342-4" version="0" />
+                  <ArrivalTime>17:08:00</ArrivalTime>
+                </TimetabledPassingTime>
+              </passingTimes>
+              <parts>
+                <JourneyPart version="0" id="VYG:JourneyPart:156_504200_1">
+                  <Description>FRE - OSL</Description>
+                  <MainPartRef ref="VYG:JourneyPart:156_504200_1" version="0" />
+                  <TrainNumberRef ref="VYG:TrainNumber:RX20-2" version="0" />
+                  <FromStopPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+                  <ToStopPointRef ref="VYG:ScheduledStopPoint:OSL-17" />
+                  <StartTime>16:12:00</StartTime>
+                  <EndTime>17:08:00</EndTime>
+                  <facilities>
+                    <ServiceFacilitySetRef ref="VYG:ServiceFacilitySet:RX20-5" version="0" />
+                  </facilities>
+                </JourneyPart>
+              </parts>
+            </ServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-08-10" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="unchanged">
+              <ServiceAlteration>replaced</ServiceAlteration>
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_504200-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-10-Mon" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-08-11" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="unchanged">
+              <ServiceAlteration>replaced</ServiceAlteration>
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_504200-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-11-Tue" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-08-12" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="unchanged">
+              <ServiceAlteration>replaced</ServiceAlteration>
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_504200-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-12-Wed" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-08-13" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="unchanged">
+              <ServiceAlteration>replaced</ServiceAlteration>
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_504200-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-13-Thu" />
+            </DatedServiceJourney>
+            <DatedServiceJourney version="2" id="VYG:DatedServiceJourney:156_FRE-OSL_26-08-14" created="2025-10-02T14:02:40" changed="0001-01-01T00:00:00" modification="unchanged">
+              <ServiceAlteration>replaced</ServiceAlteration>
+              <ServiceJourneyRef ref="VYG:ServiceJourney:156_504200-R" version="0" />
+              <OperatingDayRef ref="VYG:OperatingDay:2026-08-14-Fri" />
+            </DatedServiceJourney>
+          </vehicleJourneys>
+          <!-- ====================== Train Numbers [4] ====================== -->
+          <trainNumbers>
+            <TrainNumber version="0" id="VYG:TrainNumber:RX20-1">
+              <Description>OSL - FRE</Description>
+              <ForAdvertisement>155</ForAdvertisement>
+              <ForProduction>155</ForProduction>
+            </TrainNumber>
+            <TrainNumber version="0" id="VYG:TrainNumber:RX20-2">
+              <Description>FRE - OSL</Description>
+              <ForAdvertisement>156</ForAdvertisement>
+              <ForProduction>156</ForProduction>
+            </TrainNumber>
+            <TrainNumber version="0" id="VYG:TrainNumber:RX20-3">
+              <Description>MOS - OSL</Description>
+              <ForAdvertisement>156</ForAdvertisement>
+              <ForProduction>156</ForProduction>
+            </TrainNumber>
+            <TrainNumber version="0" id="VYG:TrainNumber:RX20-4">
+              <Description>FRE - MOS</Description>
+              <ForAdvertisement>156</ForAdvertisement>
+              <ForProduction>156</ForProduction>
+            </TrainNumber>
+          </trainNumbers>
+          <!-- ====================== Facility Sets [2] ====================== -->
+          <serviceFacilitySets>
+            <ServiceFacilitySet version="0" id="VYG:ServiceFacilitySet:RX20-45">
+              <CateringFacilityList>selfService</CateringFacilityList>
+              <FareClasses>businessClass</FareClasses>
+              <MobilityFacilityList>suitableForPushchairs suitableForWheelchairs</MobilityFacilityList>
+              <NuisanceFacilityList>mobilePhoneFreeZone animalsAllowed</NuisanceFacilityList>
+              <PassengerCommsFacilityList>publicWifi</PassengerCommsFacilityList>
+              <ServiceReservationFacilityList>reservationsRecommended</ServiceReservationFacilityList>
+            </ServiceFacilitySet>
+            <ServiceFacilitySet version="0" id="VYG:ServiceFacilitySet:RX20-5">
+              <CateringFacilityList>selfService</CateringFacilityList>
+              <FareClasses>businessClass economyClass</FareClasses>
+              <MobilityFacilityList>suitableForPushchairs suitableForWheelchairs</MobilityFacilityList>
+              <NuisanceFacilityList>mobilePhoneFreeZone animalsAllowed</NuisanceFacilityList>
+              <PassengerCommsFacilityList>publicWifi</PassengerCommsFacilityList>
+              <ServiceReservationFacilityList>reservationsRecommended</ServiceReservationFacilityList>
+            </ServiceFacilitySet>
+          </serviceFacilitySets>
+        </TimetableFrame>
+        <!-- ====================== Line Vehicle Schedule Frame ====================== -->
+        <VehicleScheduleFrame version="4949" id="VYG:VehicleScheduleFrame:RX20">
+          <blocks>
+            <!-- ====================== TrainBlocks from ServiceJourneys [10] ====================== -->
+            <!-- Block matched to VYG:ServiceJourney:155-LOD_443198-R [12/10 days] : 155:LOD[155]-FRE[155] 12 days starting 26-Apr-2026-->
+            <TrainBlock version="0" id="VYG:TrainBlock:155-LOD_443198-13F6EC61">
+              <StartTime>14:24:00</StartTime>
+              <EndTime>15:39:00</EndTime>
+              <StartPointRef ref="VYG:ScheduledStopPoint:OSL-19" />
+              <EndPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+              <blockParts>
+                <!-- BlockPart matched to localised JourneyPart 155 : OSL [14:39:00] - [15:39:00] FRE-->
+                <TrainBlockPart order="1" version="0" id="VYG:TrainBlockPart:155-LOD_443198-13F6EC61-1">
+                  <!-- Formation : 1:BMA74[1]; 2:BPA74[2]; 3:BCMU74[3]; 4:BPB74[4]; 5:BMB74[5] -->
+                  <CompoundTrainRef ref="VYG:CompoundTrain:74S_VYG-1a-2a-3a-4a-5a" />
+                  <journeyParts>
+                    <JourneyPartRef ref="VYG:JourneyPart:155-LOD_443198_1" version="0" />
+                  </journeyParts>
+                </TrainBlockPart>
+              </blockParts>
+            </TrainBlock>
+            <!-- Block matched to VYG:ServiceJourney:155-LOD_443198-R [1/10 days] : 155:LOD[155]-FRE[155] 1 days starting 24-May-2026-->
+            <TrainBlock version="0" id="VYG:TrainBlock:155-LOD_443198-84225773">
+              <StartTime>14:24:00</StartTime>
+              <EndTime>15:39:00</EndTime>
+              <StartPointRef ref="VYG:ScheduledStopPoint:OSL-19" />
+              <EndPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+              <blockParts>
+                <!-- BlockPart matched to localised JourneyPart 155 : OSL [14:39:00] - [15:39:00] FRE-->
+                <TrainBlockPart order="1" version="0" id="VYG:TrainBlockPart:155-LOD_443198-84225773-1">
+                  <!-- Formation : 1:BMB74[5]; 2:BPB74[4]; 3:BCMU74[3]; 4:BPA74[2]; 5:BMA74[1] -->
+                  <CompoundTrainRef ref="VYG:CompoundTrain:74S_VYG-5b-4b-3b-2b-1b" />
+                  <journeyParts>
+                    <JourneyPartRef ref="VYG:JourneyPart:155-LOD_443198_1" version="0" />
+                  </journeyParts>
+                </TrainBlockPart>
+              </blockParts>
+            </TrainBlock>
+            <!-- Block matched to VYG:ServiceJourney:155-LOD_445013-R [3/59 days] : 155:LOD[155]-FRE[155] 3 days starting 01-May-2026-->
+            <TrainBlock version="0" id="VYG:TrainBlock:155-LOD_445013-13F6EC61">
+              <StartTime>14:24:00</StartTime>
+              <EndTime>15:39:00</EndTime>
+              <StartPointRef ref="VYG:ScheduledStopPoint:OSL-18" />
+              <EndPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+              <blockParts>
+                <!-- BlockPart matched to localised JourneyPart 155 : OSL [14:39:00] - [15:39:00] FRE-->
+                <TrainBlockPart order="1" version="0" id="VYG:TrainBlockPart:155-LOD_445013-13F6EC61-1">
+                  <!-- Formation : 1:BMA74[1]; 2:BPA74[2]; 3:BCMU74[3]; 4:BPB74[4]; 5:BMB74[5] -->
+                  <CompoundTrainRef ref="VYG:CompoundTrain:74S_VYG-1a-2a-3a-4a-5a" />
+                  <journeyParts>
+                    <JourneyPartRef ref="VYG:JourneyPart:155-LOD_445013_1" version="0" />
+                  </journeyParts>
+                </TrainBlockPart>
+              </blockParts>
+            </TrainBlock>
+            <!-- Block matched to VYG:ServiceJourney:155-LOD_445013-R [69/59 days] : 155:LOD[155]-FRE[155] 69 days starting 20-Apr-2026-->
+            <TrainBlock version="0" id="VYG:TrainBlock:155-LOD_445013-26C18E87">
+              <StartTime>14:24:00</StartTime>
+              <EndTime>15:39:00</EndTime>
+              <StartPointRef ref="VYG:ScheduledStopPoint:OSL-18" />
+              <EndPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+              <blockParts>
+                <!-- BlockPart matched to localised JourneyPart 155 : OSL [14:39:00] - [15:39:00] FRE-->
+                <TrainBlockPart order="1" version="0" id="VYG:TrainBlockPart:155-LOD_445013-26C18E87-1">
+                  <!-- Formation : 1:BM73B[1]; 2:B73B[2]; 3:BMU73B[3]; 4:BFM73B[4] -->
+                  <CompoundTrainRef ref="VYG:CompoundTrain:73B-1a-2a-3a-4a" />
+                  <journeyParts>
+                    <JourneyPartRef ref="VYG:JourneyPart:155-LOD_445013_1" version="0" />
+                  </journeyParts>
+                </TrainBlockPart>
+              </blockParts>
+            </TrainBlock>
+            <!-- Block matched to VYG:ServiceJourney:155-LOD_445013-R [5/59 days] : 155:LOD[155]-FRE[155] 5 days starting 08-Jun-2026-->
+            <TrainBlock version="0" id="VYG:TrainBlock:155-LOD_445013-D44D00DD">
+              <StartTime>14:24:00</StartTime>
+              <EndTime>15:39:00</EndTime>
+              <StartPointRef ref="VYG:ScheduledStopPoint:OSL-18" />
+              <EndPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+              <blockParts>
+                <!-- BlockPart matched to localised JourneyPart 155 : OSL [14:39:00] - [15:39:00] FRE-->
+                <TrainBlockPart order="1" version="0" id="VYG:TrainBlockPart:155-LOD_445013-D44D00DD-1">
+                  <!-- Formation : 1:BFM73B[4]; 2:BMU73B[3]; 3:B73B[2]; 4:BM73B[1] -->
+                  <CompoundTrainRef ref="VYG:CompoundTrain:73B-4b-3b-2b-1b" />
+                  <journeyParts>
+                    <JourneyPartRef ref="VYG:JourneyPart:155-LOD_445013_1" version="0" />
+                  </journeyParts>
+                </TrainBlockPart>
+              </blockParts>
+            </TrainBlock>
+            <!-- Block matched to VYG:ServiceJourney:156_443207-R [1/13 days] : 156:FRE[156]-OSL[156] 1 days starting 24-May-2026-->
+            <TrainBlock version="0" id="VYG:TrainBlock:156_443207-4C4B1524">
+              <StartTime>16:12:00</StartTime>
+              <EndTime>17:08:00</EndTime>
+              <StartPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+              <EndPointRef ref="VYG:ScheduledStopPoint:OSL-17" />
+              <blockParts>
+                <!-- BlockPart matched to localised JourneyPart 156 : FRE [16:12:00] - [17:08:00] OSL-->
+                <TrainBlockPart order="1" version="0" id="VYG:TrainBlockPart:156_443207-4C4B1524-1">
+                  <!-- Formation : 1:BMA74[1]; 2:BPA74[2]; 3:BCMU74[3]; 4:BPB74[4]; 5:BMB74[5] -->
+                  <CompoundTrainRef ref="VYG:CompoundTrain:74S_VYG-1a-2a-3a-4a-5a" />
+                  <journeyParts>
+                    <JourneyPartRef ref="VYG:JourneyPart:156_443207_1" version="0" />
+                  </journeyParts>
+                </TrainBlockPart>
+              </blockParts>
+            </TrainBlock>
+            <!-- Block matched to VYG:ServiceJourney:156_443207-R [15/13 days] : 156:FRE[156]-OSL[156] 15 days starting 26-Apr-2026-->
+            <TrainBlock version="0" id="VYG:TrainBlock:156_443207-B3664370">
+              <StartTime>16:12:00</StartTime>
+              <EndTime>17:08:00</EndTime>
+              <StartPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+              <EndPointRef ref="VYG:ScheduledStopPoint:OSL-17" />
+              <blockParts>
+                <!-- BlockPart matched to localised JourneyPart 156 : FRE [16:12:00] - [17:08:00] OSL-->
+                <TrainBlockPart order="1" version="0" id="VYG:TrainBlockPart:156_443207-B3664370-1">
+                  <!-- Formation : 1:BMB74[5]; 2:BPB74[4]; 3:BCMU74[3]; 4:BPA74[2]; 5:BMA74[1] -->
+                  <CompoundTrainRef ref="VYG:CompoundTrain:74S_VYG-5b-4b-3b-2b-1b" />
+                  <journeyParts>
+                    <JourneyPartRef ref="VYG:JourneyPart:156_443207_1" version="0" />
+                  </journeyParts>
+                </TrainBlockPart>
+              </blockParts>
+            </TrainBlock>
+            <!-- Block matched to VYG:ServiceJourney:156_443208-R [64/51 days] : 156:FRE[156]-OSL[156] 64 days starting 20-Apr-2026-->
+            <TrainBlock version="0" id="VYG:TrainBlock:156_443208-1663CCC2">
+              <StartTime>16:12:00</StartTime>
+              <EndTime>17:08:00</EndTime>
+              <StartPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+              <EndPointRef ref="VYG:ScheduledStopPoint:OSL-19" />
+              <blockParts>
+                <!-- BlockPart matched to localised JourneyPart 156 : FRE [16:12:00] - [17:08:00] OSL-->
+                <TrainBlockPart order="1" version="0" id="VYG:TrainBlockPart:156_443208-1663CCC2-1">
+                  <!-- Formation : 1:BFM73B[4]; 2:BMU73B[3]; 3:B73B[2]; 4:BM73B[1] -->
+                  <CompoundTrainRef ref="VYG:CompoundTrain:73B-4b-3b-2b-1b" />
+                  <journeyParts>
+                    <JourneyPartRef ref="VYG:JourneyPart:156_443208_1" version="0" />
+                  </journeyParts>
+                </TrainBlockPart>
+              </blockParts>
+            </TrainBlock>
+            <!-- Block matched to VYG:ServiceJourney:156_443208-R [5/51 days] : 156:FRE[156]-OSL[156] 5 days starting 08-Jun-2026-->
+            <TrainBlock version="0" id="VYG:TrainBlock:156_443208-E4EF4298">
+              <StartTime>16:12:00</StartTime>
+              <EndTime>17:08:00</EndTime>
+              <StartPointRef ref="VYG:ScheduledStopPoint:FRE-1" />
+              <EndPointRef ref="VYG:ScheduledStopPoint:OSL-19" />
+              <blockParts>
+                <!-- BlockPart matched to localised JourneyPart 156 : FRE [16:12:00] - [17:08:00] OSL-->
+                <TrainBlockPart order="1" version="0" id="VYG:TrainBlockPart:156_443208-E4EF4298-1">
+                  <!-- Formation : 1:BM73B[1]; 2:B73B[2]; 3:BMU73B[3]; 4:BFM73B[4] -->
+                  <CompoundTrainRef ref="VYG:CompoundTrain:73B-1a-2a-3a-4a" />
+                  <journeyParts>
+                    <JourneyPartRef ref="VYG:JourneyPart:156_443208_1" version="0" />
+                  </journeyParts>
+                </TrainBlockPart>
+              </blockParts>
+            </TrainBlock>
+            <!-- Block matched to VYG:ServiceJourney:156-FRE_571158-R [5/5 days] : 156:FRE[156]-OSL[156] 5 days starting 10-Aug-2026-->
+            <TrainBlock version="0" id="VYG:TrainBlock:156-FRE_571158-74F0A6BA">
+              <StartTime>15:52:00</StartTime>
+              <EndTime>17:08:00</EndTime>
+              <StartPointRef ref="VYG:ScheduledStopPoint:MOS-1" />
+              <EndPointRef ref="VYG:ScheduledStopPoint:OSL-19" />
+              <blockParts>
+                <!-- BlockPart matched to localised JourneyPart 156 : MOS [16:35:00] - [17:08:00] OSL-->
+                <TrainBlockPart order="1" version="0" id="VYG:TrainBlockPart:156-FRE_571158-74F0A6BA-1">
+                  <!-- Formation : 1:BFM73B[4]; 2:BMU73B[3]; 3:B73B[2]; 4:BM73B[1] -->
+                  <CompoundTrainRef ref="VYG:CompoundTrain:73B-4b-3b-2b-1b" />
+                  <journeyParts>
+                    <JourneyPartRef ref="VYG:JourneyPart:156-FRE_571158_1" version="0" />
+                  </journeyParts>
+                </TrainBlockPart>
+              </blockParts>
+            </TrainBlock>
+          </blocks>
+        </VehicleScheduleFrame>
+      </frames>
+    </CompositeFrame>
+  </dataObjects>
+</PublicationDelivery>
