@@ -1,15 +1,153 @@
-premiumClass:F4
-secondClass:F5
+# =============================================================================
+# mapping_facility.txt
+# NeTEx facility / service vocabulary → EDIFACT ASD / SER codes
+#
+# Source: MERITS/PRIFIS Code Lists v26.1 (effective 2026-04-01)
+#   F-prefix = code list 9039  (Facility type)          → SER segment (ser_code field)
+#   S-prefix = code list 7161  (Special service)        → ASD segment (asd_code field)
+#   R-prefix = code list 7037  (Characteristic/Resv)    → ASD/SER reservation subfield
+#                                NOT emitted as a standalone segment; attached as
+#                                a qualifier on the ASD/SER rows from the same
+#                                ServiceFacilitySet (SER 4th subfield, ASD 8th subfield).
+#
+# Format:  netexValue:PrefixCode
+#   netexValue  — exact token from the relevant NeTEx enumeration
+#   Prefix      — F / S / R (determines ASD vs SER in converter)
+#   Code        — numeric code from the EDIFACT code list
+#
+# Unmapped entries are commented out with the reason.
+# Alias entries (legacy or equivalent NeTEx names) follow the canonical one.
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# FARE CLASS  (NeTEx FareClass → F / R)
+# F4  = First-class seats          F5  = Second-class seats
+# F10 = First-class seats only     F54 = Premium class (above 1st)
+# ---------------------------------------------------------------------------
+firstClass:F4
+businessClass:F4        # NeTEx alias commonly used for first/premium
+premiumClass:F54        # strictly "above first class" in EDIFACT (Comfort, Club)
+economyClass:F5
+secondClass:F5          # legacy alias
+
+# ---------------------------------------------------------------------------
+# ACCOMMODATION  (NeTEx AccommodationFacility → F)
+# Sleepers
+# F2  = 1st class sleeper          F3  = 2nd class sleeper (standard)
+# F11 = 1st class sleeper single   F12 = 1st class sleeper special
+# F13 = 1st class sleeper double   F57 = 1st class single + shower/WC
+# F58 = 1st class double + shower/WC
+# F15 = 2nd class T2 (two-bed)     F16 = T3 (three-bed)  F17 = T4 (four-bed)
+# F60 = 2nd class double           F61 = 2nd class double + shower/WC
+# Couchettes
+# F6  = 1st class couchette        F7  = 2nd class couchette
+# F62 = 2nd class C2 (2-couchette) F63 = C4 (4-couchette)
+# F8  = Sleeperette / reclining seat
+# Other
+# F46 = Pullman car
+# F48 = Family compartment
+# F24 = Baby room / baby care
+# F36 = Panorama coach
+# ---------------------------------------------------------------------------
+sleeper:F3              # generic sleeper → 2nd class sleeper (conservative)
 singleSleeper:F11
 doubleSleeper:F13
-babyCompartment:F24
-cyclesAllowedInVan:F26
-suitableForWheelchairs:F28
-suitableForPushchairs:F28
-bistro:F47
+specialSleeper:F12
+couchette:F7            # generic couchette → 2nd class (conservative)
+recliningSeats:F8
+sleeperette:F8
+pullman:F46
 familyCarriage:F48
+babyCompartment:F24
+panorama:F36
+# vehicleTransport → F14 — not a NeTEx PassengerFacility; handled separately if needed
+
+# ---------------------------------------------------------------------------
+# LUGGAGE / CYCLES  (NeTEx LuggageCarriageFacility → F / S)
+# F26 = Bicycle transport
+# F14 = Vehicle transport (cars, boats, trailers, motorbikes — NOT bicycles)
+# S41 = Luggage transport offered    S42 = Luggage transport excluded
+# S52 = Luggage restrictions apply
+# ---------------------------------------------------------------------------
+cyclesAllowed:F26
+cyclesAllowedInVan:F26   # legacy alias
+
+# ---------------------------------------------------------------------------
+# ACCESSIBILITY  (NeTEx MobilityFacility → F / S)
+# F21 = Heavily disabled facilities
+# F28 = Wheelchair access
+# S27 = Services for disabled persons
+# S53 = Lift platform available (wheelchair via lift)
+# ---------------------------------------------------------------------------
+suitableForWheelchairs:F28
+wheelchairLift:S53
+suitableForPushchairs:F28   # no dedicated code; same as wheelchair access
+# heavilyDisabled → F21 — not a standard NeTEx MobilityFacility enum value
+
+# ---------------------------------------------------------------------------
+# CATERING  (NeTEx CateringFacility → F / S)
+#
+# IMPORTANT — delivery mechanism matters:
+#   S25 = Trolley (beverage and food cart) — a specific delivery mechanism.
+#   S26 = Snack (generic)
+#   S21 = Cold buffet    S23 = Hot buffet    S31 = Buffet (generic)
+#   F9  = Restaurant (fixed restaurant car)
+#   F47 = Bar
+#   F34 = Mini-bar
+#   S5  = Breakfast    S6  = Dinner    S8  = Lunch
+#   S22 = Restaurant in 1st class only
+#   S24 = Meal included for 1st class passengers
+#   S38 = Meal at the seat    S39 = Self service
+#   F50 = Buffet machine (vending)
+#
+# NeTEx 'snacks' and 'coffeeShop' describe WHAT is available, not HOW it is
+# delivered. Mapping either to S25 (trolley) would assert a specific delivery
+# mechanism the source does not confirm. Use the most specific code available
+# when the NeTEx value is unambiguous; leave ambiguous values unmapped.
+# ---------------------------------------------------------------------------
 trolley:S25
-publicWifi:S46
+snacks:S26
+restaurant:F9
+restaurantFirstClass:S22
+bar:F47
+miniBar:F34
+buffet:S31
+hotBuffet:S23
+coldBuffet:S21
+breakfastIncluded:S5
+dinnerIncluded:S6
+lunchIncluded:S8
+mealAtSeat:S38
+selfService:S39
+vendingMachine:F50
+bistro:F47             # fixed bistro-car; maps to bar (closest EDIFACT concept)
+# coffeeShop → not mapped: no EDIFACT equivalent for a coffee corner/machine — use snacks or bistro if appropriate
+
+# ---------------------------------------------------------------------------
+# PASSENGER COMMUNICATIONS  (NeTEx PassengerCommsFacility → S)
+# S46 = Free WiFi    S47 = WiFi (paid or unspecified)
+# F45 = Power supply sockets
+# F44 = Telephone
+# ---------------------------------------------------------------------------
 freeWifi:S46
-reservationsPossible:R11
-#reservationsCompulsory:R13
+publicWifi:S47          # unspecified WiFi → S47 (WiFi available, not specified free)
+powerSupply:F45
+telephone:F44
+
+# ---------------------------------------------------------------------------
+# RESERVATION  (NeTEx ServiceReservationFacility → R)
+# R-prefixed codes are emitted as SER segments, not ASD segments.
+# R6  = 1st class    R7  = 2nd class (used as class qualifier in SER)
+# R11 = Reservation possible      R14 = Reservation advised/recommended
+# R13 = Reservation compulsory    R19 = No reservation possible
+# R20 = Reservation 1st class only  R23 = Reservation 2nd class only
+# R26 = Bookable via international system
+# R27 = Bookable via national system
+# R28 = Bookable manually at RU selling points
+# ---------------------------------------------------------------------------
+reservationsRecommended:R14
+reservationsPossible:R11    # alias — less specific than 'recommended'
+reservationsCompulsory:R13
+noReservationsRequired:R19
+noReservationsPossible:R19   # synonym — 'cannot reserve' maps to same EDIFACT code as 'reservation not required'
+# internationalBooking → R26 — not a standard NeTEx ServiceReservationFacility value
