@@ -116,8 +116,8 @@ def _traffic_restriction_code(for_boarding: bool, for_alighting: bool) -> Option
     
     Codes (EDIFACT standard):
     - None: Normal stop (both boarding and alighting allowed)
-    - "2": Alighting only (no boarding)
-    - "3": Boarding only (no alighting)
+    - "1": Boarding only (no alighting) → MERITS code Z
+    - "2": Alighting only (no boarding) → MERITS code A
     - "4": No boarding or alighting (pass-through)
     """
     if not for_boarding and not for_alighting:
@@ -125,7 +125,7 @@ def _traffic_restriction_code(for_boarding: bool, for_alighting: bool) -> Option
     elif not for_boarding and for_alighting:
         return "2"  # Alighting only
     elif for_boarding and not for_alighting:
-        return "3"  # Boarding only
+        return "1"  # Boarding only
     else:
         return None  # Normal stop
 

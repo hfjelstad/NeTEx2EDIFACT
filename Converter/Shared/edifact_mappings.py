@@ -22,11 +22,14 @@ PARTICIPANT_TO_RICS = {
     "NSR":   "1076",   # Bane NOR / Norwegian National Stop Register
     "ENTUR": "1176",   # Entur (national access point operator)
     "FLB":   "1076",   # Flåmsbana (Vy Group)
-    "GJB":   "1076",   # Gjøvikbanen
+    "GJB":   "1076",   # Gjøvikbanen (Vy Group)
     "GOA":   "3733",   # Go-Ahead Nordic
-    "NSB":   "1185",   # NSB / Vy
+    "NSB":   "1185",   # NSB (legacy)
     "SJN":   "3781",   # SJ Norge
-    "VYG":   "1076",   # Vy Group
+    "VYG":   "1076",   # Vy Group (codespace)
+    "VY":    "1076",   # Vy (operator ref)
+    "VYT":   "1076",   # Vy Tog
+    "TAG":   "1076",   # Vy Tåg (Swedish brand)
     "PE":    "5100",   # PKP / Polish railways (case studies)
 }
 

@@ -139,8 +139,8 @@ def _traffic_restriction_code(for_boarding: bool, for_alighting: bool) -> Option
     
     Codes (EDIFACT standard):
     - None: Normal stop (both boarding and alighting allowed)
-    - "2": Alighting only (no boarding)
-    - "3": Boarding only (no alighting)
+    - "1": Boarding only (no alighting) → MERITS code Z
+    - "2": Alighting only (no boarding) → MERITS code A
     - "4": No boarding or alighting (pass-through)
     """
     if not for_boarding and not for_alighting:
@@ -148,7 +148,7 @@ def _traffic_restriction_code(for_boarding: bool, for_alighting: bool) -> Option
     elif not for_boarding and for_alighting:
         return "2"  # Alighting only
     elif for_boarding and not for_alighting:
-        return "3"  # Boarding only
+        return "1"  # Boarding only
     else:
         return None  # Normal stop
 
@@ -574,6 +574,15 @@ def build_trains_and_pors(
             print(f"    train#{train_number:>8s}  {valid}/{total_pt} stops with UIC  ({sj_id})")
         if rail_n > 20:
             print(f"    ... and {rail_n - 20} more (showing first 20)")
+
+    # Update Meta validity period from actual train date ranges
+    if trains:
+        first_dates = [t.first_day for t in trains if t.first_day]
+        last_dates = [t.last_day for t in trains if t.last_day]
+        if first_dates and last_dates:
+            meta_list[0].validity_first_date = min(first_dates)
+            meta_list[0].validity_last_date = max(last_dates)
+
     return meta_list, trains, pors
 
 
