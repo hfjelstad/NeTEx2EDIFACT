@@ -311,10 +311,19 @@ class TimetableData:
             yield from root.findall(f".//{{{NS}}}ServiceJourney")
 
     def dated_journeys_by_sj(self) -> Dict[str, List[date]]:
-        """Map ServiceJourney id → sorted list of operating dates via DatedServiceJourney."""
+        """Map ServiceJourney id → sorted list of operating dates via DatedServiceJourney.
+
+        DatedServiceJourneys with ServiceAlteration 'cancellation' or 'replaced'
+        are excluded — those dates indicate that the base service does NOT run.
+        """
         sj_dates: Dict[str, List[date]] = {}
+        _excluded_alterations = {"cancellation", "replaced"}
         for root in self.journey_roots:
             for dsj in root.findall(f".//{{{NS}}}DatedServiceJourney"):
+                # Skip dates where the service is cancelled or replaced
+                alteration_el = dsj.find(f"{{{NS}}}ServiceAlteration")
+                if alteration_el is not None and (alteration_el.text or "").strip().lower() in _excluded_alterations:
+                    continue
                 sj_ref = dsj.find(f"{{{NS}}}ServiceJourneyRef")
                 od_ref = dsj.find(f"{{{NS}}}OperatingDayRef")
                 if sj_ref is None:
@@ -418,10 +427,13 @@ def build_trains_and_pors(
 
         # Operating dates — from DatedServiceJourney (required)
         dates = sj_dates.get(sj_id, [])
+        if not dates:
+            # All dates cancelled/replaced, or no DSJ at all — skip this journey
+            continue
 
-        first_day = dates[0].isoformat() if dates else None
-        last_day = dates[-1].isoformat() if dates else None
-        op_days = _operation_days_bitmask(dates, dates[0], dates[-1]) if dates else None
+        first_day = dates[0].isoformat()
+        last_day = dates[-1].isoformat()
+        op_days = _operation_days_bitmask(dates, dates[0], dates[-1])
 
         passing_times = sj.findall(f".//{{{NS}}}TimetabledPassingTime")
 
@@ -611,7 +623,7 @@ def convert(
 
     print(f"Parsing timetable from {timetable_zip.name} ...")
     tt = TimetableData(timetable_zip)
-    print(f"  {len(tt.ssp_to_quay)} SSP→Quay assignments")
+    print(f"  {len(tt.ssp_to_quay)} SSP->Quay assignments")
     print(f"  {len(tt.spijp_to_ssp)} StopPointInJourneyPattern entries")
     print(f"  {sum(len(v) for v in tt.dated_journeys_by_sj().values())} DatedServiceJourney entries")
 

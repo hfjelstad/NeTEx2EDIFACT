@@ -26,10 +26,11 @@ PARTICIPANT_TO_RICS = {
     "GOA":   "3733",   # Go-Ahead Nordic
     "NSB":   "1185",   # NSB (legacy)
     "SJN":   "3781",   # SJ Norge
+    "SNT":   "3051",   # Snälltåget
     "VYG":   "1076",   # Vy Group (codespace)
     "VY":    "1076",   # Vy (operator ref)
-    "VYT":   "1076",   # Vy Tog
-    "TAG":   "1076",   # Vy Tåg (Swedish brand)
+    "VYT":   "3822",   # Vy Tog AS (jernbanepakke 3)
+    "TAG":   "3050",   # Vy Tåg AB (Sweden)
     "PE":    "5100",   # PKP / Polish railways (case studies)
 }
 
