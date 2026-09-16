@@ -74,8 +74,18 @@ def _load_rules(target: str) -> list[dict]:
             except (json.JSONDecodeError, KeyError):
                 pass  # Rebuild cache
 
-    # Parse TTL (slow path, ~5s with rdflib)
-    rules_by_target = _parse_ttl_rules()
+    # No ontology available (e.g. CI runner without the workspace) and no
+    # usable cache — skip validation rather than crashing the conversion.
+    if not ONTOLOGY_PATH.exists():
+        _rules_cache.setdefault(target, [])
+        return _rules_cache[target]
+
+    # Parse TTL (slow path, ~5s with rdflib). rdflib may not be installed.
+    try:
+        rules_by_target = _parse_ttl_rules()
+    except ImportError:
+        _rules_cache.setdefault(target, [])
+        return _rules_cache[target]
 
     # Save to JSON cache for next time
     import json

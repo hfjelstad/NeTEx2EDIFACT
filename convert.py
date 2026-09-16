@@ -238,38 +238,49 @@ def main() -> None:
         return
 
     # ---- Pre-flight validation (TTL-driven) ----
-    from Converter.validate import preflight_check, preflight_check_zip, print_results
+    from Converter.validate import (
+        ONTOLOGY_PATH,
+        preflight_check,
+        preflight_check_zip,
+        print_results,
+    )
 
     has_blocking_error = False
     tsdupd_blocked = False  # Station file failed TSDUPD validation (but SKDUPD can proceed)
     print(f"\n{'-'*60}")
-    print("Pre-flight validation (rules from uic-edifact-ontology.ttl)")
+    if not ONTOLOGY_PATH.exists():
+        # The validation ontology lives outside the converter repo (workspace
+        # LLM/Indexes/). When it is absent — e.g. on a CI runner — skip
+        # pre-flight validation instead of aborting the conversion.
+        print("Pre-flight validation skipped (uic-edifact-ontology.ttl not available).")
+    else:
+        print("Pre-flight validation (rules from uic-edifact-ontology.ttl)")
 
-    for fc in files:
-        target = "TSDUPD" if (fc.has_stops and not fc.has_timetable) else "SKDUPD"
-        if fc.path.suffix == ".zip":
-            errors, warnings = preflight_check_zip(fc.path, target)
-        else:
-            errors, warnings = preflight_check(fc.path, target)
+        for fc in files:
+            target = "TSDUPD" if (fc.has_stops and not fc.has_timetable) else "SKDUPD"
+            if fc.path.suffix == ".zip":
+                errors, warnings = preflight_check_zip(fc.path, target)
+            else:
+                errors, warnings = preflight_check(fc.path, target)
 
-        if errors or warnings:
-            print(f"\n  {fc.path.name} ({target}):")
-            print_results(fc.path, errors, warnings)
-            if errors:
-                if target == "TSDUPD" and timetable_files:
-                    # Station file failed TSDUPD validation but is still usable
-                    # as UIC reference for SKDUPD conversion
-                    tsdupd_blocked = True
-                    print(f"  (Station file will still be used for SKDUPD UIC lookup)")
-                else:
-                    has_blocking_error = True
-        else:
-            print(f"  OK: {fc.path.name}")
+            if errors or warnings:
+                print(f"\n  {fc.path.name} ({target}):")
+                print_results(fc.path, errors, warnings)
+                if errors:
+                    if target == "TSDUPD" and timetable_files:
+                        # Station file failed TSDUPD validation but is still usable
+                        # as UIC reference for SKDUPD conversion
+                        tsdupd_blocked = True
+                        print(f"  (Station file will still be used for SKDUPD UIC lookup)")
+                    else:
+                        has_blocking_error = True
+            else:
+                print(f"  OK: {fc.path.name}")
 
-    if has_blocking_error:
-        print(f"\n{'-'*60}")
-        print("  FAILED: Validation failed -- fix the errors above before converting.")
-        return
+        if has_blocking_error:
+            print(f"\n{'-'*60}")
+            print("  FAILED: Validation failed -- fix the errors above before converting.")
+            return
 
     print(f"{'-'*60}")
 
