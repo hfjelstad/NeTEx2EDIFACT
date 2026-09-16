@@ -32,6 +32,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 import argparse
+import logging
 import re
 import time
 import zipfile
@@ -477,7 +478,12 @@ def convert_batch(
     ))
 
     for timetable_zip in timetable_zips:
-        op_label = timetable_zip.name.split("_")[0].upper()
+        # Operator code is the first name token; skip Entur/Rutebanken publisher
+        # prefixes (e.g. "rb_goa-aggregated-netex.zip" -> GOA). Split on _ and -.
+        tokens = [t for t in re.split(r"[_-]", timetable_zip.stem) if t]
+        if tokens and tokens[0].lower() in ("rb", "rutebanken"):
+            tokens = tokens[1:]
+        op_label = tokens[0].upper() if tokens else timetable_zip.stem.upper()
         print(f"\n--- Processing {timetable_zip.name} ({op_label}) ---")
         op_t0 = time.perf_counter()
         op_timings: Dict[str, float] = {"operator": op_label, "size_mb": timetable_zip.stat().st_size / 1_048_576}
@@ -719,6 +725,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     args = _build_arg_parser().parse_args()
 
     source_dir = Path(args.source_dir)
