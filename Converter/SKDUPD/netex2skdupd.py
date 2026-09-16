@@ -29,6 +29,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 import argparse
+import logging
 import zipfile
 import xml.etree.ElementTree as ET
 from datetime import date, timedelta, datetime
@@ -49,6 +50,9 @@ from Converter.Shared.netex_helpers import (
     uic_code,
 )
 from Converter.Shared.edifact_mappings import PARTICIPANT_TO_RICS, resolve_originator
+
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -116,16 +120,6 @@ def _parse_time(t: str) -> Optional[str]:
     return s.replace(":", "")
 
 
-def _apply_day_offset(hhmm: Optional[str], offset: Optional[str]) -> Optional[str]:
-    """Deprecated: kept for import-compatibility.
-
-    Day-offset handling now lives inline in build_trains_and_pors and emits
-    the ":::N" marker on the FIRST cross-midnight arrival only (matching
-    validated reference output produced by the MERITS reference pipeline).
-    """
-    return hhmm
-
-
 def _operation_days_bitmask(dates: List[date], first: date, last: date) -> str:
     """Build binary bitmask string from first to last (inclusive)."""
     date_set = set(dates)
@@ -139,8 +133,8 @@ def _traffic_restriction_code(for_boarding: bool, for_alighting: bool) -> Option
     
     Codes (EDIFACT standard):
     - None: Normal stop (both boarding and alighting allowed)
-    - "2": Alighting only (no boarding)
-    - "3": Boarding only (no alighting)
+    - "1": Boarding only (no alighting) → MERITS code Z
+    - "2": Alighting only (no boarding) → MERITS code A
     - "4": No boarding or alighting (pass-through)
     """
     if not for_boarding and not for_alighting:
@@ -148,7 +142,7 @@ def _traffic_restriction_code(for_boarding: bool, for_alighting: bool) -> Option
     elif not for_boarding and for_alighting:
         return "2"  # Alighting only
     elif for_boarding and not for_alighting:
-        return "3"  # Boarding only
+        return "1"  # Boarding only
     else:
         return None  # Normal stop
 
@@ -158,8 +152,24 @@ def _traffic_restriction_code(for_boarding: bool, for_alighting: bool) -> Option
 # ---------------------------------------------------------------------------
 
 def _uic_from_stop_place(sp) -> str:
-    """Extract UIC code from a StopPlace element (typed PrivateCode only)."""
-    return uic_code(sp, accept_legacy=False)
+    """Extract UIC code from a StopPlace element.
+
+    Priority:
+      1. privateCodes/PrivateCode[@type='uicCode']  (NeTEx standard)
+      2. keyList/KeyValue with Key='iffCode'        (NSR fallback for Swedish stations)
+    """
+    code = uic_code(sp, accept_legacy=False)
+    if code:
+        return code
+    # Fallback: NSR stores some UIC codes as iffCode in keyList
+    for kv in sp.findall(f"{{{NS}}}keyList/{{{NS}}}KeyValue"):
+        key_el = kv.find(f"{{{NS}}}Key")
+        val_el = kv.find(f"{{{NS}}}Value")
+        if key_el is not None and (key_el.text or "").strip() == "iffCode":
+            val = (val_el.text or "").strip() if val_el is not None else ""
+            if val:
+                return val
+    return ""
 
 
 def _build_station_index(station_path: Path) -> Dict[str, Tuple[str, str]]:
@@ -311,10 +321,19 @@ class TimetableData:
             yield from root.findall(f".//{{{NS}}}ServiceJourney")
 
     def dated_journeys_by_sj(self) -> Dict[str, List[date]]:
-        """Map ServiceJourney id → sorted list of operating dates via DatedServiceJourney."""
+        """Map ServiceJourney id → sorted list of operating dates via DatedServiceJourney.
+
+        DatedServiceJourneys with ServiceAlteration 'cancellation' or 'replaced'
+        are excluded — those dates indicate that the base service does NOT run.
+        """
         sj_dates: Dict[str, List[date]] = {}
+        _excluded_alterations = {"cancellation", "replaced"}
         for root in self.journey_roots:
             for dsj in root.findall(f".//{{{NS}}}DatedServiceJourney"):
+                # Skip dates where the service is cancelled or replaced
+                alteration_el = dsj.find(f"{{{NS}}}ServiceAlteration")
+                if alteration_el is not None and (alteration_el.text or "").strip().lower() in _excluded_alterations:
+                    continue
                 sj_ref = dsj.find(f"{{{NS}}}ServiceJourneyRef")
                 od_ref = dsj.find(f"{{{NS}}}OperatingDayRef")
                 if sj_ref is None:
@@ -333,6 +352,172 @@ class TimetableData:
 # ---------------------------------------------------------------------------
 # Shared conversion logic
 # ---------------------------------------------------------------------------
+
+def _resolve_journey_stops(
+    sj: ET.Element,
+    tt: TimetableData,
+    quay_index: Dict[str, Tuple[str, str]],
+) -> Tuple[List[Tuple[str, ET.Element, str, str]], int]:
+    """Resolve one ServiceJourney's passing times to UIC-bearing stops.
+
+    Returns ``(emitted, skipped)`` where ``emitted`` is the stop-ordered list
+    of ``(spijp_ref, passing_time, uic, platform)`` tuples and ``skipped`` is
+    the number of passing times dropped for lacking a UIC code.  MERITS
+    POR/E517(1)/3225 requires a UIC, and ODI/1050 refs depend on the
+    renumbered sequence, so stops without UIC cannot be represented.
+    """
+    passing_times = sj.findall(f".//{{{NS}}}TimetabledPassingTime")
+
+    def stop_order(tp):
+        spijp_ref = tp.find(f"{{{NS}}}StopPointInJourneyPatternRef")
+        ref = spijp_ref.get("ref", "") if spijp_ref is not None else ""
+        return tt.spijp_order.get(ref, 999)
+
+    emitted: List[Tuple[str, ET.Element, str, str]] = []
+    skipped = 0
+    for tp in sorted(passing_times, key=stop_order):
+        spijp_ref_el = tp.find(f"{{{NS}}}StopPointInJourneyPatternRef")
+        spijp_ref = spijp_ref_el.get("ref", "") if spijp_ref_el is not None else ""
+        ssp_id = tt.spijp_to_ssp.get(spijp_ref, "")
+        quay_id = tt.ssp_to_quay.get(ssp_id, "")
+        uic, platform = quay_index.get(quay_id, ("", ""))
+        if not uic:
+            skipped += 1
+            continue
+        emitted.append((spijp_ref, tp, uic, platform))
+    return emitted, skipped
+
+
+def _build_pors_for_train(
+    emitted: List[Tuple[str, ET.Element, str, str]],
+    train_id: int,
+    por_id: int,
+    tt: TimetableData,
+) -> Tuple[List[Por], int, int]:
+    """Build the POR rows for a single train.
+
+    ``por_id`` is the last id used so far; the first emitted POR takes
+    ``por_id + 1``.  Returns ``(pors, next_por_id, restricted_stops)``.
+
+    Day-offset emission (POR/E362 sub-element 4, e.g. ":::1") is written ONLY
+    on the first arrival/departure that crosses midnight — matching validated
+    reference output; the validator infers the rollover for later stops.
+    """
+    pors: List[Por] = []
+    restricted_stops = 0
+    total_stops = len(emitted)
+    prev_offset = "0"
+    first_marker_emitted = False
+    for stop_num, (spijp_ref, tp, uic, platform) in enumerate(emitted, start=1):
+        arr = _parse_time(_text(tp, "ArrivalTime"))
+        dep = _parse_time(_text(tp, "DepartureTime"))
+        arr_off_raw = (_text(tp, "ArrivalDayOffset") or "0").strip() or "0"
+        dep_off_raw = (_text(tp, "DepartureDayOffset") or "0").strip() or "0"
+
+        # Bus/coach passing times often carry only one of arrival/departure.
+        # Mirror the present value (with its day-offset) so intermediate stops
+        # show a time and a shortened journey's terminus is not misread as a
+        # run-through (empty POR) once the departure is dropped below.
+        if arr is None and dep is not None:
+            arr, arr_off_raw = dep, dep_off_raw
+        elif dep is None and arr is not None:
+            dep, dep_off_raw = arr, arr_off_raw
+
+        # Mark only the first arrival/departure that increases the
+        # cumulative day-offset relative to the previous emitted offset.
+        arr_off: Optional[str] = None
+        dep_off: Optional[str] = None
+        if not first_marker_emitted and arr is not None and arr_off_raw != prev_offset:
+            arr_off = arr_off_raw
+            first_marker_emitted = True
+            prev_offset = arr_off_raw
+        elif not first_marker_emitted and dep is not None and dep_off_raw != prev_offset:
+            dep_off = dep_off_raw
+            first_marker_emitted = True
+            prev_offset = dep_off_raw
+        elif dep_off_raw != prev_offset and first_marker_emitted:
+            # Multi-day journeys (rare): emit subsequent rollover too.
+            dep_off = dep_off_raw
+            prev_offset = dep_off_raw
+
+        if stop_num == 1:
+            arr = None
+            arr_off = None
+        if stop_num == total_stops:
+            dep = None
+            dep_off = None
+
+        for_boarding, for_alighting = tt.spijp_restrictions.get(spijp_ref, (True, True))
+        traffic_code = _traffic_restriction_code(for_boarding, for_alighting)
+        if traffic_code is not None:
+            restricted_stops += 1
+
+        por_id += 1
+        pors.append(Por(
+            por_id=por_id,
+            train_id=train_id,
+            stop_number=stop_num,
+            uic=uic,
+            arrival_time=arr,
+            arrival_time_offset=arr_off,
+            departure_time=dep,
+            departure_time_offset=dep_off,
+            arrival_platform=platform or None,
+            departure_platform=platform or None,
+            property=None,
+            traffic_restriction_code=traffic_code,
+            distance_and_unit=None,
+            loading_vehicles=None,
+            unloading_vehicles=None,
+            check_out=None,
+            check_in=None,
+        ))
+    return pors, por_id, restricted_stops
+
+
+def _log_conversion_summary(
+    trains: List[Train],
+    pors: List[Por],
+    *,
+    skipped_stops: int,
+    restricted_stops: int,
+    skipped_trains: int,
+    converted_by_mode: Dict[str, int],
+    skipped_by_mode: Dict[str, int],
+    skipped_rail_details: List[Tuple[str, str, int, int]],
+) -> None:
+    """Emit the human-readable conversion summary via the module logger."""
+    non_rail_skipped = sum(n for m, n in skipped_by_mode.items() if m != "rail")
+    non_rail_converted = sum(n for m, n in converted_by_mode.items() if m != "rail")
+    unit = "journeys" if non_rail_converted else "trains"
+    logger.info(
+        "Converted %d %s, %d stop-times (%d stops without UIC, %d with restrictions%s)",
+        len(trains), unit, len(pors), skipped_stops, restricted_stops,
+        f", {skipped_trains} rail journeys skipped (<2 valid stops)" if skipped_trains else "",
+    )
+    if non_rail_converted:
+        conv_breakdown = ", ".join(
+            f"{m}={n}" for m, n in sorted(converted_by_mode.items(), key=lambda kv: -kv[1])
+        )
+        logger.info("  Converted by mode: %s", conv_breakdown)
+    if non_rail_skipped:
+        skip_breakdown = ", ".join(
+            f"{m}={n}" for m, n in sorted(skipped_by_mode.items(), key=lambda kv: -kv[1]) if m != "rail"
+        )
+        logger.info("  Skipped non-rail modes: %s", skip_breakdown)
+    if skipped_rail_details:
+        rail_n = len(skipped_rail_details)
+        logger.warning(
+            "%d rail journey(s) skipped due to <2 UIC-resolvable stops:", rail_n
+        )
+        for sj_id, train_number, total_pt, valid in skipped_rail_details[:20]:
+            logger.warning(
+                "    train#%8s  %d/%d stops with UIC  (%s)",
+                train_number, valid, total_pt, sj_id,
+            )
+        if rail_n > 20:
+            logger.warning("    ... and %d more (showing first 20)", rail_n - 20)
+
 
 def build_trains_and_pors(
     tt: TimetableData,
@@ -418,36 +603,16 @@ def build_trains_and_pors(
 
         # Operating dates — from DatedServiceJourney (required)
         dates = sj_dates.get(sj_id, [])
+        if not dates:
+            # All dates cancelled/replaced, or no DSJ at all — skip this journey
+            continue
 
-        first_day = dates[0].isoformat() if dates else None
-        last_day = dates[-1].isoformat() if dates else None
-        op_days = _operation_days_bitmask(dates, dates[0], dates[-1]) if dates else None
+        first_day = dates[0].isoformat()
+        last_day = dates[-1].isoformat()
+        op_days = _operation_days_bitmask(dates, dates[0], dates[-1])
 
-        passing_times = sj.findall(f".//{{{NS}}}TimetabledPassingTime")
-
-        def stop_order(tp):
-            spijp_ref = tp.find(f"{{{NS}}}StopPointInJourneyPatternRef")
-            ref = spijp_ref.get("ref", "") if spijp_ref is not None else ""
-            return tt.spijp_order.get(ref, 999)
-
-        passing_times_sorted = sorted(passing_times, key=stop_order)
-
-        # Pre-filter: drop passing times whose stop has no UIC code, since
-        # MERITS POR/E517(1)/3225 requires uic and ODI/1050 references depend
-        # on the (re-)numbered stop sequence.  Stops without UIC typically
-        # belong to non-rail journey segments and cannot be represented in
-        # SKDUPD anyway.
-        emitted: List[Tuple[str, ET.Element, str, str]] = []
-        for tp in passing_times_sorted:
-            spijp_ref_el = tp.find(f"{{{NS}}}StopPointInJourneyPatternRef")
-            spijp_ref = spijp_ref_el.get("ref", "") if spijp_ref_el is not None else ""
-            ssp_id = tt.spijp_to_ssp.get(spijp_ref, "")
-            quay_id = tt.ssp_to_quay.get(ssp_id, "")
-            uic, platform = quay_index.get(quay_id, ("", ""))
-            if not uic:
-                skipped_stops += 1
-                continue
-            emitted.append((spijp_ref, tp, uic, platform))
+        emitted, journey_skipped = _resolve_journey_stops(sj, tt, quay_index)
+        skipped_stops += journey_skipped
 
         total_stops = len(emitted)
         # MERITS requires a minimum of two stops per train (PRD/4_POP/POR).
@@ -459,7 +624,7 @@ def build_trains_and_pors(
             if tm_value == "rail":
                 skipped_trains += 1
                 skipped_rail_details.append(
-                    (sj_id, train_number, len(passing_times_sorted), total_stops)
+                    (sj_id, train_number, total_stops + journey_skipped, total_stops)
                 )
             continue
 
@@ -488,92 +653,31 @@ def build_trains_and_pors(
             spijp_remap_out[train_id] = {
                 ref: i for i, (ref, _, _, _) in enumerate(emitted, start=1)
             }
-        # Day-offset emission strategy (matches validated reference output):
-        # MERITS expects POR/E362 day-offset (sub-element 4, e.g. ":::1") to be
-        # populated ONLY on the first arrival composite that crosses midnight,
-        # not on every subsequent post-midnight stop.  Subsequent stops carry
-        # plain HHMM and the validator infers day rollover from the marker.
-        prev_offset = "0"
-        first_marker_emitted = False
-        for stop_num, (spijp_ref, tp, uic, platform) in enumerate(emitted, start=1):
-            arr = _parse_time(_text(tp, "ArrivalTime"))
-            dep = _parse_time(_text(tp, "DepartureTime"))
-            arr_off_raw = (_text(tp, "ArrivalDayOffset") or "0").strip() or "0"
-            dep_off_raw = (_text(tp, "DepartureDayOffset") or "0").strip() or "0"
 
-            # Mark only the first arrival/departure that increases the
-            # cumulative day-offset relative to the previous emitted offset.
-            arr_off: Optional[str] = None
-            dep_off: Optional[str] = None
-            if not first_marker_emitted and arr is not None and arr_off_raw != prev_offset:
-                arr_off = arr_off_raw
-                first_marker_emitted = True
-                prev_offset = arr_off_raw
-            elif not first_marker_emitted and dep is not None and dep_off_raw != prev_offset:
-                dep_off = dep_off_raw
-                first_marker_emitted = True
-                prev_offset = dep_off_raw
-            else:
-                # Track running offset so a later (e.g. day+2) marker triggers.
-                if dep_off_raw != prev_offset and first_marker_emitted:
-                    # Multi-day journeys (rare): emit subsequent rollover too.
-                    dep_off = dep_off_raw
-                    prev_offset = dep_off_raw
+        journey_pors, por_id, journey_restricted = _build_pors_for_train(
+            emitted, train_id, por_id, tt
+        )
+        pors.extend(journey_pors)
+        restricted_stops += journey_restricted
 
-            if stop_num == 1:
-                arr = None
-                arr_off = None
-            if stop_num == total_stops:
-                dep = None
-                dep_off = None
+    _log_conversion_summary(
+        trains, pors,
+        skipped_stops=skipped_stops,
+        restricted_stops=restricted_stops,
+        skipped_trains=skipped_trains,
+        converted_by_mode=converted_by_mode,
+        skipped_by_mode=skipped_by_mode,
+        skipped_rail_details=skipped_rail_details,
+    )
 
-            # Resolve boarding/alighting restrictions
-            for_boarding, for_alighting = tt.spijp_restrictions.get(spijp_ref, (True, True))
-            traffic_code = _traffic_restriction_code(for_boarding, for_alighting)
-            if traffic_code is not None:
-                restricted_stops += 1
+    # Update Meta validity period from actual train date ranges
+    if trains:
+        first_dates = [t.first_day for t in trains if t.first_day]
+        last_dates = [t.last_day for t in trains if t.last_day]
+        if first_dates and last_dates:
+            meta_list[0].validity_first_date = min(first_dates)
+            meta_list[0].validity_last_date = max(last_dates)
 
-            por_id += 1
-            pors.append(Por(
-                por_id=por_id,
-                train_id=train_id,
-                stop_number=stop_num,
-                uic=uic,
-                arrival_time=arr,
-                arrival_time_offset=arr_off,
-                departure_time=dep,
-                departure_time_offset=dep_off,
-                arrival_platform=platform or None,
-                departure_platform=platform or None,
-                property=None,
-                traffic_restriction_code=traffic_code,
-                distance_and_unit=None,
-                loading_vehicles=None,
-                unloading_vehicles=None,
-                check_out=None,
-                check_in=None,
-            ))
-
-    non_rail_skipped = sum(n for m, n in skipped_by_mode.items() if m != "rail")
-    non_rail_converted = sum(n for m, n in converted_by_mode.items() if m != "rail")
-    unit = "journeys" if non_rail_converted else "trains"
-    print(f"Converted {len(trains)} {unit}, {len(pors)} stop-times "
-          f"({skipped_stops} stops without UIC, {restricted_stops} with restrictions"
-          + (f", {skipped_trains} rail journeys skipped (<2 valid stops)" if skipped_trains else "")
-          + ")")
-    if non_rail_converted:
-        conv_breakdown = ", ".join(f"{m}={n}" for m, n in sorted(converted_by_mode.items(), key=lambda kv: -kv[1]))
-        print(f"  Converted by mode: {conv_breakdown}")
-    if non_rail_skipped:
-        skip_breakdown = ", ".join(f"{m}={n}" for m, n in sorted(skipped_by_mode.items(), key=lambda kv: -kv[1]) if m != "rail")
-        print(f"  Skipped non-rail modes: {skip_breakdown}")
-    if skipped_rail_details:
-        rail_n = len(skipped_rail_details)
-        print(f"  WARNING: {rail_n} rail journey(s) skipped due to <2 UIC-resolvable stops:")
-        for sj_id, train_number, total_pt, valid in skipped_rail_details[:20]:
-            print(f"    train#{train_number:>8s}  {valid}/{total_pt} stops with UIC  ({sj_id})")
-        if rail_n > 20:
-            print(f"    ... and {rail_n - 20} more (showing first 20)")
     return meta_list, trains, pors
 
 
@@ -592,24 +696,27 @@ def convert(
     brand_map = load_mapping(cfg_dir / "mapping_brand.txt")
     service_mode_map = load_mapping(cfg_dir / "mapping_service_mode.txt")
     if brand_map:
-        print(f"  Loaded brand map: {len(brand_map)} entries")
+        logger.info("  Loaded brand map: %d entries", len(brand_map))
     if service_mode_map:
-        print(f"  Loaded service-mode map: {len(service_mode_map)} entries")
+        logger.info("  Loaded service-mode map: %d entries", len(service_mode_map))
 
-    print(f"Loading station index from {station_zip.name} ...")
+    logger.info("Loading station index from %s ...", station_zip.name)
     quay_index = _build_station_index(station_zip)
-    print(f"  {len(quay_index)} quays indexed")
+    logger.info("  %d quays indexed", len(quay_index))
 
-    print(f"Parsing timetable from {timetable_zip.name} ...")
+    logger.info("Parsing timetable from %s ...", timetable_zip.name)
     tt = TimetableData(timetable_zip)
-    print(f"  {len(tt.ssp_to_quay)} SSP→Quay assignments")
-    print(f"  {len(tt.spijp_to_ssp)} StopPointInJourneyPattern entries")
-    print(f"  {sum(len(v) for v in tt.dated_journeys_by_sj().values())} DatedServiceJourney entries")
+    logger.info("  %d SSP->Quay assignments", len(tt.ssp_to_quay))
+    logger.info("  %d StopPointInJourneyPattern entries", len(tt.spijp_to_ssp))
+    logger.info(
+        "  %d DatedServiceJourney entries",
+        sum(len(v) for v in tt.dated_journeys_by_sj().values()),
+    )
 
     # Resolve originator: CLI override > ParticipantRef in NeTEx file
     participant = participant_ref(tt.shared_root) if tt.shared_root is not None else ""
     resolved_originator = resolve_originator(participant, originator)
-    print(f"  Originator: {resolved_originator!r} (ParticipantRef={participant!r})")
+    logger.info("  Originator: %r (ParticipantRef=%r)", resolved_originator, participant)
 
     meta_list, trains, pors = build_trains_and_pors(
         tt, quay_index, resolved_originator,
@@ -629,7 +736,7 @@ def convert(
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
     output_file.write_text(edifact_text, encoding="utf-8")
-    print(f"Written SKDUPD EDIFACT to {output_file}")
+    logger.info("Written SKDUPD EDIFACT to %s", output_file)
 
     # Also produce a unix-timestamped .zip alongside the .r file (MERITS
     # submission convention).
@@ -637,7 +744,7 @@ def convert(
     zip_path = output_file.parent / f"SKDUPD_{int(time.time())}.zip"
     with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         zf.write(output_file, arcname=output_file.name)
-    print(f"Written SKDUPD ZIP to {zip_path}")
+    logger.info("Written SKDUPD ZIP to %s", zip_path)
 
 
 # ---------------------------------------------------------------------------
@@ -672,6 +779,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     args = _build_arg_parser().parse_args()
     convert(
         timetable_zip=Path(args.timetable),

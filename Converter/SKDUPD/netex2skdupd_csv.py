@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import logging
 from pathlib import Path
 
 # Re-use all parsing/lookup and build logic from the direct converter
@@ -105,6 +106,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     args = _build_arg_parser().parse_args()
     convert(
         timetable_zip=Path(args.timetable),

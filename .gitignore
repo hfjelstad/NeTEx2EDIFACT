@@ -13,6 +13,9 @@ __pycache__/
 !Source/.gitkeep
 !Output/.gitkeep
 
+# Bundled station file for CI (small, versioned intentionally)
+!data/nsr_uic_stops_current_with_mct.xml
+
 # Source and Output folders (only keep .gitkeep)
 Source/*
 !Source/.gitkeep

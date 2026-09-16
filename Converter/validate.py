@@ -298,17 +298,29 @@ def preflight_check_zip(
                 counts: dict[str, int] = {}
                 root_tag = ""
 
-                with zf.open(xml_names[0]) as f:
-                    for event, elem in ET.iterparse(f, events=("start",)):
-                        local = elem.tag.split("}")[-1] if "}" in elem.tag else elem.tag
-                        if not root_tag:
-                            root_tag = local
-                        if local in TRACKED:
-                            counts[local] = counts.get(local, 0) + 1
-                        total = sum(counts.values())
-                        if total > 500:
-                            break
-                        elem.clear()
+                CALENDAR_ELEMENTS = {"DayType", "OperatingDay", "DatedServiceJourney"}
+
+                for xml_name in xml_names:
+                    with zf.open(xml_name) as f:
+                        for event, elem in ET.iterparse(f, events=("start",)):
+                            local = elem.tag.split("}")[-1] if "}" in elem.tag else elem.tag
+                            if not root_tag:
+                                root_tag = local
+                            if local in TRACKED:
+                                counts[local] = counts.get(local, 0) + 1
+                            total = sum(counts.values())
+                            has_calendar = any(counts.get(c, 0) > 0 for c in CALENDAR_ELEMENTS)
+                            if total > 500 and has_calendar:
+                                break
+                            if total > 5000:
+                                break
+                            elem.clear()
+                    total = sum(counts.values())
+                    has_calendar = any(counts.get(c, 0) > 0 for c in CALENDAR_ELEMENTS)
+                    if total > 500 and has_calendar:
+                        break
+                    if total > 5000:
+                        break
 
                 counts["__ROOT:" + root_tag] = 1
                 found_elements = counts

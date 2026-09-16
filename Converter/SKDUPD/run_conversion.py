@@ -32,6 +32,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 import argparse
+import logging
 import re
 import time
 import zipfile
@@ -467,8 +468,8 @@ def convert_batch(
     # The HDR collector takes reference[:-2] for date_1 (qualifier 45).
     from datetime import datetime
     reference = datetime.now().strftime("%Y-%m-%dT%H%M%S")
-    resolved_originator = resolve_originator(originator, None)
-    print(f"Originator {originator!r} -> RICS {resolved_originator!r}")
+    resolved_originator = resolve_originator("VYG", None)  # Vy (1076) as supplier – matches production
+    print(f"Originator -> RICS {resolved_originator!r} (Vy, production supplier)")
     all_meta.append(Meta(
         reference=reference,
         validity_first_date=today,
@@ -477,7 +478,12 @@ def convert_batch(
     ))
 
     for timetable_zip in timetable_zips:
-        op_label = timetable_zip.name.split("_")[0].upper()
+        # Operator code is the first name token; skip Entur/Rutebanken publisher
+        # prefixes (e.g. "rb_goa-aggregated-netex.zip" -> GOA). Split on _ and -.
+        tokens = [t for t in re.split(r"[_-]", timetable_zip.stem) if t]
+        if tokens and tokens[0].lower() in ("rb", "rutebanken"):
+            tokens = tokens[1:]
+        op_label = tokens[0].upper() if tokens else timetable_zip.stem.upper()
         print(f"\n--- Processing {timetable_zip.name} ({op_label}) ---")
         op_t0 = time.perf_counter()
         op_timings: Dict[str, float] = {"operator": op_label, "size_mb": timetable_zip.stat().st_size / 1_048_576}
@@ -508,10 +514,11 @@ def convert_batch(
         _t = time.perf_counter()
         spijp_remap: Dict[int, Dict[str, int]] = {}
         train_sjs: List[ET.Element] = []
+        op_rics = resolve_originator(op_label, None)  # per-operator RICS as fallback
         _, op_trains, op_pors = build_trains_and_pors(
             tt=tt,
             quay_index=quay_index,
-            originator=resolved_originator,
+            originator=op_rics,
             brand_map=brand_map,
             service_mode_map=service_mode_map,
             train_id_offset=train_id_offset,
@@ -598,6 +605,15 @@ def convert_batch(
         all_pors.extend(op_pors)
 
     print(f"\nTotal: {len(all_trains)} trains, {len(all_pors)} PORs, {len(all_odis)} ODIs")
+
+    # Update Meta validity period from actual train date ranges
+    if all_trains:
+        first_dates = [t.first_day for t in all_trains if t.first_day]
+        last_dates = [t.last_day for t in all_trains if t.last_day]
+        if first_dates and last_dates:
+            all_meta[0].validity_first_date = min(first_dates)
+            all_meta[0].validity_last_date = max(last_dates)
+            print(f"  HDR validity: {all_meta[0].validity_first_date} / {all_meta[0].validity_last_date}")
 
     # Write EDIFACT
     _t = time.perf_counter()
@@ -709,6 +725,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     args = _build_arg_parser().parse_args()
 
     source_dir = Path(args.source_dir)

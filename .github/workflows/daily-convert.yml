@@ -1,0 +1,48 @@
+name: Daily EDIFACT conversion
+
+# Produces a fresh SKDUPD/TSDUPD dataset every morning from the latest
+# Entur/Rutebanken NeTEx export + the bundled NSR station file.
+on:
+  schedule:
+    # GitHub cron is UTC and does NOT follow DST. 03:00 UTC ≈ 05:00 in
+    # summer (CEST) / 04:00 in winter (CET). Adjust if you need a fixed
+    # local wall-clock time year-round.
+    - cron: "0 3 * * *"
+  workflow_dispatch: {}   # allow manual runs from the Actions tab
+
+permissions:
+  contents: read
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install MERITS tools
+        run: pip install "git+https://github.com/UnionInternationalCheminsdeFer/MERITS-open-source-tools"
+
+      - name: Fetch source data
+        # Downloads the three timetable ZIPs; the NSR station file resolves to
+        # the bundled data/ copy (the external workspace path is absent in CI).
+        run: python fetch_source.py
+
+      - name: Convert to EDIFACT
+        run: python convert.py
+
+      - name: Upload EDIFACT artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: edifact-${{ github.run_id }}
+          path: |
+            Output/*.r
+            Output/*.zip
+          if-no-files-found: error
+          retention-days: 30

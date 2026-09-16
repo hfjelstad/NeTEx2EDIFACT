@@ -241,6 +241,7 @@ def main() -> None:
     from Converter.validate import preflight_check, preflight_check_zip, print_results
 
     has_blocking_error = False
+    tsdupd_blocked = False  # Station file failed TSDUPD validation (but SKDUPD can proceed)
     print(f"\n{'-'*60}")
     print("Pre-flight validation (rules from uic-edifact-ontology.ttl)")
 
@@ -255,7 +256,13 @@ def main() -> None:
             print(f"\n  {fc.path.name} ({target}):")
             print_results(fc.path, errors, warnings)
             if errors:
-                has_blocking_error = True
+                if target == "TSDUPD" and timetable_files:
+                    # Station file failed TSDUPD validation but is still usable
+                    # as UIC reference for SKDUPD conversion
+                    tsdupd_blocked = True
+                    print(f"  (Station file will still be used for SKDUPD UIC lookup)")
+                else:
+                    has_blocking_error = True
         else:
             print(f"  OK: {fc.path.name}")
 
@@ -270,7 +277,7 @@ def main() -> None:
     print(f"\nOutput:  {OUTPUT_DIR.relative_to(OUTPUT_DIR.parent)}/")
 
     # ---- TSDUPD (stations) ----
-    if station_files:
+    if station_files and not tsdupd_blocked:
         sf = _best_station_file(station_files)
         print(f"\n{'-'*60}")
         print(f"TSDUPD -- stations from: {sf.path.name}")
@@ -286,6 +293,8 @@ def main() -> None:
             print(f"  OK: {tsdupd_output.name}")
         except Exception as e:
             print(f"  FAILED: TSDUPD: {e}")
+    elif tsdupd_blocked:
+        print("\nSkipping TSDUPD (station file failed validation -- see above).")
     else:
         print("\nNo station data found -- skipping TSDUPD.")
 
