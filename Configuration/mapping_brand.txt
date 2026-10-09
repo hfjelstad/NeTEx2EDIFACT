@@ -3,3 +3,5 @@ regionalRail:92
 nightRail:101
 railReplacementBus:162
 replacementRailService:162
+# local trains: 88 Suburban (generic brand, mode (sub)urban) in UIC service brand list v26.2
+local:88

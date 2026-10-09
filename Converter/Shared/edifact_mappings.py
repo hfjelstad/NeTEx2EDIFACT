@@ -77,6 +77,23 @@ COUNTRY_TO_TIMEZONE = {
 
 
 # ---------------------------------------------------------------------------
+# ISO 639-2/3 (three letters) → ISO 639-1 (two letters), for the languages
+# that occur in Nordic and European station names. Extend as needed.
+# ---------------------------------------------------------------------------
+_ISO639_3_TO_1 = {
+    "nor": "no", "nob": "no", "nno": "nn", "eng": "en", "swe": "sv",
+    "dan": "da", "fin": "fi", "isl": "is", "ice": "is", "sme": "se",
+    "deu": "de", "ger": "de", "fra": "fr", "fre": "fr", "nld": "nl",
+    "dut": "nl", "spa": "es", "ita": "it", "por": "pt", "pol": "pl",
+    "ces": "cs", "cze": "cs", "slk": "sk", "slo": "sk", "hun": "hu",
+    "ron": "ro", "rum": "ro", "bul": "bg", "ell": "el", "gre": "el",
+    "rus": "ru", "ukr": "uk", "est": "et", "lav": "lv", "lit": "lt",
+    "hrv": "hr", "slv": "sl", "srp": "sr", "tur": "tr", "gle": "ga",
+    "cym": "cy", "wel": "cy",
+}
+
+
+# ---------------------------------------------------------------------------
 # ASCII transliteration for Nordic / common European glyphs that
 # unicodedata.NFKD does NOT decompose (ø, æ, ß, etc.).
 # EDIFACT messages emitted with UIB charset UNOB:4 must stay within a
@@ -105,6 +122,17 @@ def to_ascii(text: str) -> str:
     folded = text.translate(_ASCII_FOLD)
     decomposed = unicodedata.normalize("NFKD", folded)
     return decomposed.encode("ascii", "ignore").decode("ascii")
+
+
+def to_iso639_1(lang: str) -> str:
+    """Two-letter ISO 639-1 code for a NeTEx ``lang`` value, or '' if unknown.
+
+    MERITS (tag 3453) rejects three-letter codes such as ``eng`` and ``nor``.
+    """
+    code = (lang or "").strip().lower()
+    if len(code) == 2:
+        return code
+    return _ISO639_3_TO_1.get(code, "")
 
 
 def country_from_uic(uic: str) -> str:

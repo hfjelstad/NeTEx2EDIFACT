@@ -127,24 +127,32 @@ def _operation_days_bitmask(dates: List[date], first: date, last: date) -> str:
     return "".join("1" if first + timedelta(days=i) in date_set else "0" for i in range(days))
 
 
-def _traffic_restriction_code(for_boarding: bool, for_alighting: bool) -> Optional[str]:
+def _traffic_restriction_code(
+    for_boarding: bool, for_alighting: bool, stop_use: str = ""
+) -> Optional[str]:
     """
-    Map ForBoarding/ForAlighting to EDIFACT traffic restriction code.
-    
-    Codes (EDIFACT standard):
+    Map ForBoarding/ForAlighting/StopUse to EDIFACT traffic restriction code (8015).
+
     - None: Normal stop (both boarding and alighting allowed)
-    - "1": Boarding only (no alighting) → MERITS code Z
-    - "2": Alighting only (no boarding) → MERITS code A
-    - "4": No boarding or alighting (pass-through)
+    - "1": Boarding only (no alighting)
+    - "2": Alighting only (no boarding)
+    - "3": Technical stop, no boarding or alighting (StopUse noBoardingOrAlighting)
+    - "4": Passage, the service passes without stopping (StopUse passthrough, or
+      neither boarding nor alighting without a StopUse)
     """
+    use = stop_use.strip().lower()
+    if use == "noboardingoralighting":
+        return "3"
+    if use == "passthrough":
+        return "4"
     if not for_boarding and not for_alighting:
-        return "4"  # Pass-through
+        return "4"
     elif not for_boarding and for_alighting:
-        return "2"  # Alighting only
+        return "2"
     elif for_boarding and not for_alighting:
-        return "1"  # Boarding only
+        return "1"
     else:
-        return None  # Normal stop
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -259,6 +267,7 @@ class TimetableData:
         self.spijp_to_ssp: Dict[str, str] = {}          # SPiJP id → SSP id
         self.spijp_order: Dict[str, int] = {}            # SPiJP id → stop_number
         self.spijp_restrictions: Dict[str, Tuple[bool, bool]] = {}  # SPiJP id → (ForBoarding, ForAlighting)
+        self.spijp_stop_use: Dict[str, str] = {}         # SPiJP id → StopUse text
         self._build_journey_lookups()
 
     def _load(self, timetable_zip: Path) -> None:
@@ -314,6 +323,9 @@ class TimetableData:
                         self.spijp_to_ssp[spijp_id] = ssp_id
                         self.spijp_order[spijp_id] = order
                         self.spijp_restrictions[spijp_id] = (for_boarding, for_alighting)
+                        stop_use_el = spijp.find(f"{{{NS}}}StopUse")
+                        if stop_use_el is not None and stop_use_el.text:
+                            self.spijp_stop_use[spijp_id] = stop_use_el.text.strip()
 
     def service_journeys(self):
         """Yield all ServiceJourney elements from journey files."""
@@ -448,7 +460,9 @@ def _build_pors_for_train(
             dep_off = None
 
         for_boarding, for_alighting = tt.spijp_restrictions.get(spijp_ref, (True, True))
-        traffic_code = _traffic_restriction_code(for_boarding, for_alighting)
+        traffic_code = _traffic_restriction_code(
+            for_boarding, for_alighting, tt.spijp_stop_use.get(spijp_ref, "")
+        )
         if traffic_code is not None:
             restricted_stops += 1
 
@@ -572,6 +586,8 @@ def build_trains_and_pors(
     skipped_by_mode: Dict[str, int] = {}
     converted_by_mode: Dict[str, int] = {}
     skipped_rail_details: List[Tuple[str, str, int, int]] = []  # (sj_id, train_number, total_pt, valid_stops)
+    unmapped_modes: Dict[str, int] = {}
+    unknown_operators: Dict[str, int] = {}
 
     sj_dates = tt.dated_journeys_by_sj()
 
@@ -589,6 +605,7 @@ def build_trains_and_pors(
         op_ref_el = sj.find(f"{{{NS}}}OperatorRef")
         operator_alpha = op_ref_el.get("ref", "").split(":")[-1] if op_ref_el is not None else originator
         # PRD/3036(1) requires a RICS code, not an alpha code.
+        operator_known = operator_alpha.upper() in PARTICIPANT_TO_RICS
         operator = PARTICIPANT_TO_RICS.get(operator_alpha.upper(), originator)
 
         # PRD/E989(1)/7009 service_mode = transport mode code (e.g. rail → 37)
@@ -631,6 +648,10 @@ def build_trains_and_pors(
         train_id += 1
         conv_mode_key = tm_value or "(none)"
         converted_by_mode[conv_mode_key] = converted_by_mode.get(conv_mode_key, 0) + 1
+        if service_mode is None:
+            unmapped_modes[conv_mode_key] = unmapped_modes.get(conv_mode_key, 0) + 1
+        if not operator_known:
+            unknown_operators[operator_alpha] = unknown_operators.get(operator_alpha, 0) + 1
         trains.append(Train(
             train_id=train_id,
             service_number=train_number,
@@ -669,6 +690,17 @@ def build_trains_and_pors(
         skipped_by_mode=skipped_by_mode,
         skipped_rail_details=skipped_rail_details,
     )
+    if unmapped_modes:
+        logger.warning(
+            "TransportMode without service mode mapping (MERITS reads these as train, 37): %s",
+            ", ".join(f"{m}={n}" for m, n in sorted(unmapped_modes.items())),
+        )
+    if unknown_operators:
+        logger.warning(
+            "Operator without RICS code, credited to the sender (%s): %s",
+            originator,
+            ", ".join(f"{o}={n}" for o, n in sorted(unknown_operators.items())),
+        )
 
     # Update Meta validity period from actual train date ranges
     if trains:
