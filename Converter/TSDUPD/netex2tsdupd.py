@@ -47,6 +47,7 @@ from Converter.Shared.edifact_mappings import (
     resolve_originator,
     timezone_for_country,
     to_ascii,
+    to_iso639_1,
 )
 from Converter.Shared.netex_helpers import (
     NS,
@@ -115,24 +116,25 @@ def _load_mct_csv(csv_path: Path) -> Dict[str, int]:
 # EDIFACT-specific helpers (only what is unique to TSDUPD lives here)
 # ---------------------------------------------------------------------------
 
-# UN/EDIFACT code list 3227 — location function qualifier
-_MODE_TO_FUNCTION_CODE: Dict[str, str] = {
-    "rail":      "29",  # Station/terminal
-    "metro":     "29",
-    "tram":      "29",
-    "water":     "50",  # Port/ferry terminal
-    "bus":       "21",  # Bus station
-    "coach":     "21",
-    "telecabin": "29",
-    "funicular": "29",
-}
-_DEFAULT_FUNCTION_CODE = "29"
+# Code list 3227: only rail stations are delivered, so the function is always 29.
+_RAIL_STATION_FUNCTION_CODE = "29"
+
+# MERITS wants 2999-12-31 for "no end date" (TSDUPD guide, section 1).
+_OPEN_END_DATE = "2999-12-31"
 
 
-def _location_function_code(stop_place: ET.Element) -> str:
-    """Map NeTEx TransportMode to UN/EDIFACT 3227 location function code."""
+def _is_rail_station(stop_place: ET.Element) -> bool:
+    """True for rail stations. Bus StopPlaces are in the station file only so
+    that SKDUPD can convert the buses; they are not delivered as locations.
+
+    Falls back to TransportMode when the StopPlace has no StopPlaceType.
+    """
+    place_type = (stop_place.findtext(f"{{{NS}}}StopPlaceType") or "").strip()
+    if place_type:
+        return place_type == "railStation"
     mode = (stop_place.findtext(f"{{{NS}}}TransportMode") or "").strip().lower()
-    return _MODE_TO_FUNCTION_CODE.get(mode, _DEFAULT_FUNCTION_CODE)
+    return mode == "rail"
+
 
 def _to_dms(value: str, hemispheres: tuple, width: int) -> str:
     """Convert a decimal-degree string to EDIFACT DMS form '[D]DDMMSS<H>'.
@@ -209,29 +211,46 @@ def convert(input_dir: Path, output_file: Path, originator: str | None,
     synonyms: List[Synonym] = []
     stop_id = 0
     synonym_id = 0
+    skipped_non_rail = 0
+    skipped_no_uic = 0
+    skipped_empty_name: List[str] = []
+    no_validity = 0
+    dropped_language: List[str] = []
 
     for sp in stop_places:
+        if not _is_rail_station(sp):
+            skipped_non_rail += 1
+            continue
         uic = uic_code(sp)
         if not uic:
+            skipped_no_uic += 1
+            continue
+
+        name = to_ascii(netex_text(sp, "Name")).strip()
+        if not name:
+            skipped_empty_name.append(uic)
             continue
 
         stop_id += 1
-        name = netex_text(sp, "Name")
         lat, lon = coordinates(sp)
         valid_from, valid_to = validity(sp)
+        if not valid_from:
+            no_validity += 1
+            valid_from = today
+        valid_to = valid_to or _OPEN_END_DATE
         country = country_from_uic(uic)
         tz_zone, tz_variation = timezone_for_country(country)
 
         stops.append(Stop(
             stop_id=stop_id,
-            function_code=_location_function_code(sp),
+            function_code=_RAIL_STATION_FUNCTION_CODE,
             uic_code=uic,
-            location_name=to_ascii(name),
+            location_name=name,
             location_short_name=None,
             latitude=_to_dms(lat, ("N", "S"), 2) or None,
             longitude=_to_dms(lon, ("E", "W"), 3) or None,
-            valid_from=valid_from or None,
-            valid_to=valid_to or None,
+            valid_from=valid_from,
+            valid_to=valid_to,
             # POP+87 default transfer time uses EDIFACT period format HHMM
             # (data element 2380), e.g. 8 minutes -> '0008', 75 min -> '0115'.
             default_transfer_time=(
@@ -245,16 +264,35 @@ def convert(input_dir: Path, output_file: Path, originator: str | None,
         ))
 
         for lang, alt_name in alt_names(sp):
+            synonym_name = to_ascii(alt_name).strip()
+            if not synonym_name:
+                continue
+            language = to_iso639_1(lang)
+            if lang and not language:
+                dropped_language.append(lang)
             synonym_id += 1
             synonyms.append(Synonym(
                 synonym_id=synonym_id,
                 stop_id=stop_id,
                 uic_code=uic,
-                language=lang,
-                synonym=to_ascii(alt_name),
+                language=language,
+                synonym=synonym_name,
             ))
 
     print(f"Converted {len(stops)} stops, {len(synonyms)} synonyms")
+    if skipped_non_rail:
+        print(f"  Skipped {skipped_non_rail} StopPlaces that are not rail stations")
+    if skipped_no_uic:
+        print(f"WARNING: skipped {skipped_no_uic} rail StopPlaces without a UIC code")
+    if skipped_empty_name:
+        print(f"WARNING: skipped {len(skipped_empty_name)} stations with an empty name "
+              f"after ASCII folding (UIC {', '.join(skipped_empty_name)})")
+    if no_validity:
+        print(f"WARNING: {no_validity} stations have no ValidBetween; "
+              f"validity starts {today}")
+    if dropped_language:
+        print(f"WARNING: synonyms with unknown language written without language: "
+              f"{', '.join(sorted(set(dropped_language)))}")
 
     converter = CsvsToEdifact()
     converter.load({
