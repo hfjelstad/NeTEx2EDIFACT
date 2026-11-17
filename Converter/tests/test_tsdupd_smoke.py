@@ -34,7 +34,8 @@ from Converter.TSDUPD.netex2tsdupd import convert  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
-# Minimal NeTEx fixture: two stops — one rail, one water
+# Minimal NeTEx fixture: two rail stations, a bus stop that shares a rail UIC
+# code, and a ferry terminal. Only the rail stations are delivered.
 # ---------------------------------------------------------------------------
 _NETEX_XML = textwrap.dedent("""\
     <?xml version="1.0" encoding="UTF-8"?>
@@ -51,6 +52,11 @@ _NETEX_XML = textwrap.dedent("""\
                 <PrivateCode type="uicCode">007600100</PrivateCode>
               </privateCodes>
               <Name lang="nor">Oslo S</Name>
+              <alternativeNames>
+                <AlternativeName>
+                  <Name lang="eng">Oslo Central</Name>
+                </AlternativeName>
+              </alternativeNames>
               <Centroid>
                 <Location>
                   <Longitude>10.752245</Longitude>
@@ -58,6 +64,42 @@ _NETEX_XML = textwrap.dedent("""\
                 </Location>
               </Centroid>
               <TransportMode>rail</TransportMode>
+              <StopPlaceType>railStation</StopPlaceType>
+            </StopPlace>
+
+            <!-- Rail station with a start date but no end date -->
+            <StopPlace id="NSR:StopPlace:400" version="1">
+              <ValidBetween>
+                <FromDate>2020-01-01T00:00:00</FromDate>
+              </ValidBetween>
+              <privateCodes>
+                <PrivateCode type="uicCode">007600200</PrivateCode>
+              </privateCodes>
+              <Name lang="nor">Lillestrøm</Name>
+              <Centroid>
+                <Location>
+                  <Longitude>11.0495</Longitude>
+                  <Latitude>59.9559</Latitude>
+                </Location>
+              </Centroid>
+              <TransportMode>rail</TransportMode>
+              <StopPlaceType>railStation</StopPlaceType>
+            </StopPlace>
+
+            <!-- Bus stop that shares the UIC code of Oslo S -->
+            <StopPlace id="NSR:StopPlace:338" version="1">
+              <privateCodes>
+                <PrivateCode type="uicCode">007600100</PrivateCode>
+              </privateCodes>
+              <Name lang="nor">Oslo bussterminal</Name>
+              <Centroid>
+                <Location>
+                  <Longitude>10.759</Longitude>
+                  <Latitude>59.912</Latitude>
+                </Location>
+              </Centroid>
+              <TransportMode>bus</TransportMode>
+              <StopPlaceType>onstreetBus</StopPlaceType>
             </StopPlace>
 
             <!-- Ferry terminal: Aker Brygge -->
@@ -73,6 +115,7 @@ _NETEX_XML = textwrap.dedent("""\
                 </Location>
               </Centroid>
               <TransportMode>water</TransportMode>
+              <StopPlaceType>ferryStop</StopPlaceType>
             </StopPlace>
 
           </stopPlaces>
@@ -123,9 +166,28 @@ class TestTSDUPDOutput:
         """Rail → location function code 29."""
         assert "ALS+29+" in tsdupd_output
 
-    def test_water_function_code(self, tsdupd_output: str):
-        """Water/ferry → location function code 50."""
-        assert "ALS+50+" in tsdupd_output
+    def test_only_rail_function_code(self, tsdupd_output: str):
+        """Only rail stations are delivered, so no other function code appears."""
+        assert "ALS+21+" not in tsdupd_output
+        assert "ALS+50+" not in tsdupd_output
+
+    def test_ferry_and_bus_not_delivered(self, tsdupd_output: str):
+        assert "007699999" not in tsdupd_output
+        assert "Oslo bussterminal" not in tsdupd_output
+
+    def test_shared_uic_code_written_once(self, tsdupd_output: str):
+        assert tsdupd_output.count("ALS+29+007600100") == 1
+
+    def test_open_end_validity(self, tsdupd_output: str):
+        """A missing ToDate is written as 2999-12-31, never as an open end."""
+        assert "2020-01-01/2999-12-31" in tsdupd_output
+
+    def test_missing_validity_gets_open_end(self, tsdupd_output: str):
+        assert tsdupd_output.count("/2999-12-31") >= 2
+
+    def test_synonym_language_is_two_letters(self, tsdupd_output: str):
+        assert "IFT+AGW::::en+Oslo Central" in tsdupd_output
+        assert "::::eng" not in tsdupd_output
 
     def test_reservation_code_segment(self, tsdupd_output: str):
         """RFR+X01 carries the StopPlace.id as reservation code."""
@@ -148,7 +210,7 @@ class TestTSDUPDOutput:
         """ParticipantRef=NSR → RICS code 1076 in the originator field."""
         assert "1076" in tsdupd_output
 
-    def test_two_stops_converted(self, tsdupd_output: str):
-        """Both UIC codes from the fixture must appear."""
+    def test_two_rail_stations_converted(self, tsdupd_output: str):
+        """Both rail UIC codes from the fixture must appear."""
         assert "007600100" in tsdupd_output
-        assert "007699999" in tsdupd_output
+        assert "007600200" in tsdupd_output

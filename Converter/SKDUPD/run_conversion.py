@@ -86,35 +86,51 @@ def _journeypart_stop_range(
         jp: ET.Element,
         spijp_order: Dict[str, int],
         por_stop_numbers: List[int],
+        spijp_to_ssp: Optional[Dict[str, str]] = None,
 ) -> Tuple[str, str]:
-        """
-        Resolve JourneyPart coverage range as SKDUPD stop numbers.
+    """
+    Resolve JourneyPart coverage range as SKDUPD stop numbers.
 
-        Preferred path:
-            FromPointInJourneyPatternRef / ToPointInJourneyPatternRef -> SPiJP order
+    Preferred path:
+        FromStopPointRef / ToStopPointRef (ScheduledStopPoint ids) -> stop numbers
+        via the SPiJP that use each ScheduledStopPoint.
 
-        Fallbacks:
-            first/last available POR stop number for the train.
-        """
-        if not por_stop_numbers:
-                return "1", "1"
+    Fallbacks:
+        FromPointInJourneyPatternRef / ToPointInJourneyPatternRef -> SPiJP order,
+        then first/last available POR stop number for the train.
+    """
+    if not por_stop_numbers:
+        return "1", "1"
 
-        default_from = min(por_stop_numbers)
-        default_to = max(por_stop_numbers)
+    default_from = min(por_stop_numbers)
+    default_to = max(por_stop_numbers)
 
-        from_ref_el = jp.find(f"{{{NS}}}FromPointInJourneyPatternRef")
-        to_ref_el = jp.find(f"{{{NS}}}ToPointInJourneyPatternRef")
+    def _ref(tag: str) -> str:
+        el = jp.find(f"{{{NS}}}{tag}")
+        return el.get("ref", "") if el is not None else ""
 
-        from_ref = from_ref_el.get("ref", "") if from_ref_el is not None else ""
-        to_ref = to_ref_el.get("ref", "") if to_ref_el is not None else ""
+    from_ssp = _ref("FromStopPointRef")
+    to_ssp = _ref("ToStopPointRef")
 
-        from_stop = spijp_order.get(from_ref, default_from)
-        to_stop = spijp_order.get(to_ref, default_to)
+    if (from_ssp or to_ssp) and spijp_to_ssp:
+        ssp_stops: Dict[str, List[int]] = {}
+        for spijp_ref, number in spijp_order.items():
+            ssp = spijp_to_ssp.get(spijp_ref)
+            if ssp:
+                ssp_stops.setdefault(ssp, []).append(number)
 
-        if from_stop > to_stop:
-                from_stop, to_stop = to_stop, from_stop
-
+        from_stop = min(ssp_stops.get(from_ssp) or [default_from])
+        to_candidates = [n for n in ssp_stops.get(to_ssp, []) if n >= from_stop]
+        to_stop = min(to_candidates) if to_candidates else default_to
         return str(from_stop), str(to_stop)
+
+    from_stop = spijp_order.get(_ref("FromPointInJourneyPatternRef"), default_from)
+    to_stop = spijp_order.get(_ref("ToPointInJourneyPatternRef"), default_to)
+
+    if from_stop > to_stop:
+        from_stop, to_stop = to_stop, from_stop
+
+    return str(from_stop), str(to_stop)
 
 
 def _operator_rics_map(tt: TimetableData) -> Dict[str, str]:
@@ -211,6 +227,7 @@ def _build_odis_for_train_legacy(
     por_stop_numbers: List[int],
     brand_code: str,
     odi_id_counter: List[int],
+    spijp_to_ssp: Optional[Dict[str, str]] = None,
 ) -> List[Odi]:
     """
     Legacy-compatible ODI behavior:
@@ -230,6 +247,7 @@ def _build_odis_for_train_legacy(
             jp=jp,
             spijp_order=spijp_order,
             por_stop_numbers=por_stop_numbers,
+            spijp_to_ssp=spijp_to_ssp,
         )
         fac_names: List[str] = []
         inline_sfs = jp.find(f"{{{NS}}}ServiceFacilitySet")
@@ -305,6 +323,8 @@ def _build_odis_for_train(
     por_stop_numbers: List[int],
     odi_id_counter: List[int],
     brand_code: str = "",
+    spijp_to_ssp: Optional[Dict[str, str]] = None,
+    unmapped_facilities: Optional[Dict[str, int]] = None,
 ) -> List[Odi]:
     """
     Derive ODI records from JourneyPart ServiceFacilitySetRef.
@@ -346,7 +366,10 @@ def _build_odis_for_train(
         odi_codes: List[str] = []
         reservation: Optional[str] = None
         seen: set = set()
-        for raw_code in (facility_map.get(n, "") for n in fac_names):
+        for fac_name in fac_names:
+            raw_code = facility_map.get(fac_name, "")
+            if not raw_code and unmapped_facilities is not None:
+                unmapped_facilities[fac_name] = unmapped_facilities.get(fac_name, 0) + 1
             if not raw_code or len(raw_code) < 2:
                 continue
             prefix, num = raw_code[0], raw_code[1:]
@@ -371,6 +394,7 @@ def _build_odis_for_train(
             jp=jp,
             spijp_order=spijp_order,
             por_stop_numbers=por_stop_numbers,
+            spijp_to_ssp=spijp_to_ssp,
         )
 
         for odi_code in odi_codes:
@@ -540,6 +564,9 @@ def convert_batch(
             for p in op_pors:
                 por_by_train.setdefault(p.train_id, []).append(p.stop_number)
 
+            unmapped_submodes: Dict[str, int] = {}
+            unmapped_facilities: Dict[str, int] = {}
+
             for idx, train in enumerate(op_trains):
                 sj = train_sjs[idx]
                 por_stop_numbers = por_by_train.get(train.train_id, [])
@@ -547,6 +574,9 @@ def convert_batch(
                 submode = _service_submode_value(sj)
                 if submode:
                     brand_code = brand_map.get(submode, "")
+                if not brand_code:
+                    key = submode or "(none)"
+                    unmapped_submodes[key] = unmapped_submodes.get(key, 0) + 1
 
                 if legacy_upload_parity:
                     odis = _build_odis_for_train_legacy(
@@ -558,6 +588,7 @@ def convert_batch(
                         por_stop_numbers=por_stop_numbers,
                         brand_code=brand_code,
                         odi_id_counter=odi_id_counter,
+                        spijp_to_ssp=tt.spijp_to_ssp,
                     )
                 else:
                     odis = _build_odis_for_train(
@@ -569,8 +600,18 @@ def convert_batch(
                         por_stop_numbers=por_stop_numbers,
                         odi_id_counter=odi_id_counter,
                         brand_code=brand_code,
+                        spijp_to_ssp=tt.spijp_to_ssp,
+                        unmapped_facilities=unmapped_facilities,
                     )
                 all_odis.extend(odis)
+
+            if unmapped_submodes:
+                print("  WARNING: services without a brand (no mapping_brand.txt entry for the "
+                      "TransportSubmode): "
+                      + ", ".join(f"{k}={v}" for k, v in sorted(unmapped_submodes.items())))
+            if unmapped_facilities:
+                print("  WARNING: facilities not in mapping_facility.txt, dropped: "
+                      + ", ".join(f"{k}={v}" for k, v in sorted(unmapped_facilities.items())))
 
             if all_odis:
                 print(f"  {odi_id_counter[0]} ODI records so far")
