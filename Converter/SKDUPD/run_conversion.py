@@ -38,7 +38,7 @@ import time
 import zipfile
 import xml.etree.ElementTree as ET
 from dataclasses import asdict, fields
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Type, TypeVar
 
@@ -51,6 +51,7 @@ from Converter.SKDUPD.netex2skdupd import (
     TimetableData,
     _build_station_index,
     build_trains_and_pors,
+    _operation_days_bitmask,
     _rows,
     load_mapping,
     DEFAULT_CONFIG_DIR,
@@ -435,6 +436,84 @@ def _build_odis_for_train(
 # Batch converter
 # ---------------------------------------------------------------------------
 
+def _merge_identical_trains(
+    trains: List[Train], pors: List[Por], odis: List[Odi],
+) -> Tuple[List[Train], List[Por], List[Odi], int]:
+    """Merge trains that are identical apart from their operating days.
+
+    NeTEx often models one train number as several ServiceJourneys with the
+    same stops and times, for example a replacement journey on a few dates
+    next to the regular journey. Emitted one-to-one, these give MERITS two
+    records with the same train number, the same route and overlapping
+    validity periods. MERITS treats them as one train, and the later record's
+    calendar overwrites the earlier one, so the dates only the first record
+    covers disappear (seen for SJN 1305 Trondheim S - Storlien on 28-30 Dec
+    2026). Merging them into one record with the union of the dates avoids
+    that.
+
+    Two trains count as identical when every Train field except id and
+    calendar, every POR field except ids, and every ODI field except ids match.
+    The first train of each group is kept. Returns the filtered lists and the
+    number of trains removed.
+    """
+    por_by_train: Dict[int, List[Por]] = {}
+    for p in pors:
+        por_by_train.setdefault(p.train_id, []).append(p)
+    odi_by_train: Dict[int, List[Odi]] = {}
+    for o in odis:
+        odi_by_train.setdefault(o.train_id, []).append(o)
+
+    calendar_fields = {"train_id", "first_day", "last_day", "operation_days"}
+
+    def signature(t: Train) -> tuple:
+        train_part = tuple(
+            (k, v) for k, v in asdict(t).items() if k not in calendar_fields
+        )
+        por_part = tuple(
+            tuple((k, v) for k, v in asdict(p).items() if k not in ("por_id", "train_id"))
+            for p in sorted(por_by_train.get(t.train_id, []), key=lambda p: int(p.stop_number))
+        )
+        odi_part = tuple(sorted(
+            tuple((k, str(v)) for k, v in asdict(o).items() if k not in ("odi_id", "train_id"))
+            for o in odi_by_train.get(t.train_id, [])
+        ))
+        return train_part, por_part, odi_part
+
+    def dates_of(t: Train) -> set:
+        first = date.fromisoformat(t.first_day)
+        return {
+            first + timedelta(days=i)
+            for i, bit in enumerate(t.operation_days or "") if bit == "1"
+        }
+
+    groups: Dict[tuple, List[Train]] = {}
+    for t in trains:
+        groups.setdefault(signature(t), []).append(t)
+
+    dropped: set = set()
+    for members in groups.values():
+        if len(members) < 2:
+            continue
+        keep = members[0]
+        all_dates: set = set()
+        for t in members:
+            all_dates |= dates_of(t)
+        first, last = min(all_dates), max(all_dates)
+        keep.first_day = first.isoformat()
+        keep.last_day = last.isoformat()
+        keep.operation_days = _operation_days_bitmask(sorted(all_dates), first, last)
+        dropped.update(t.train_id for t in members[1:])
+
+    if not dropped:
+        return trains, pors, odis, 0
+    return (
+        [t for t in trains if t.train_id not in dropped],
+        [p for p in pors if p.train_id not in dropped],
+        [o for o in odis if o.train_id not in dropped],
+        len(dropped),
+    )
+
+
 def convert_batch(
     source_dir: Path,
     station_zip: Path,
@@ -644,6 +723,11 @@ def convert_batch(
 
         all_trains.extend(op_trains)
         all_pors.extend(op_pors)
+
+    all_trains, all_pors, all_odis, merged = _merge_identical_trains(all_trains, all_pors, all_odis)
+    if merged:
+        print(f"\nMerged {merged} trains into an identical record with the same train number "
+              f"(same stops, times and facilities; operating days combined)")
 
     print(f"\nTotal: {len(all_trains)} trains, {len(all_pors)} PORs, {len(all_odis)} ODIs")
 
